@@ -70,7 +70,6 @@ const StyledCheckboxLabel = styled.label<{ size: CheckboxSizeType }>`
   margin-right: ${({ size }) => (size === 'small' ? '0.5rem' : '1rem')};
   cursor: pointer;
   user-select: none;
-  color: ${({ theme }) => theme.themeValues.colorValues.grayscale[600]}; // 텍스트 색상을 그레이로 설정
 `;
 
 const StyledHiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
