@@ -4,7 +4,8 @@ import Menu from '@/components/pages/Menu';
 import MyPage from '@/components/pages/MyPage';
 import Walk from '@/components/pages/Walk';
 import ResponsiveLayout from '@/components/templates/ResponsiveLayout';
-import Notification from '@/components/pages/notification';
+import Notification from '@/components/pages/Notification';
+import Login from '@/components/pages/Login';
 
 export const router = createBrowserRouter([
   {
@@ -47,12 +48,19 @@ export const router = createBrowserRouter([
       </ResponsiveLayout>
     ),
   },
+  {
+    path: '/login',
+    element: (
+      <ResponsiveLayout>
+        <Login />
+      </ResponsiveLayout>
+    ),
+  },
   // {
   //   path: '/menu/walk/go',
   //   element: <GoWalk />,
   // },
   // { path: '*', element: <Root /> },
-  // { path: '/login', element: <Login /> },
   // { path: '/menu/schedule', element: <Schedule /> },
   // { path: '/menu/health', element: <Health /> },
   // { path: '/menu/food', element: <Food /> },
