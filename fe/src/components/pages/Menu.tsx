@@ -1,5 +1,10 @@
 import React from 'react';
+import MenuList from '../\btemplate/MenuList';
 
 export default function Menu() {
-  return <div>Menu</div>;
+  return (
+    <div>
+      <MenuList />
+    </div>
+  );
 }
