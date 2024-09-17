@@ -1,11 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Image from '../atoms/Image';
-import Div from '../atoms/Div';
 
 export default function Nav() {
   return (
-    <Div
+    <div
       style={{
         display: 'flex',
         width: '100%',
@@ -55,6 +54,6 @@ export default function Nav() {
           style={{ fontSize: '0.8rem', width: '1.5rem' }}
         />
       </Link>
-    </Div>
+    </div>
   );
 }

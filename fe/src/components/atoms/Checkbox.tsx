@@ -23,6 +23,7 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
   isChecked?: boolean;
   position?: 'left' | 'right';
   justifyContent?: 'flex-start' | 'center' | 'flex-end';
+  style?: React.CSSProperties;
 }
 
 export default function Checkbox({
@@ -31,13 +32,14 @@ export default function Checkbox({
   isChecked = false,
   position = 'left',
   justifyContent = 'flex-start',
+  style,
 }: CheckboxProps) {
   const [checked, setChecked] = useState(isChecked);
 
   const handleCheckboxChange = () => setChecked((prevChecked) => !prevChecked);
 
   return (
-    <StyledCheckboxContainer justifyContent={justifyContent}>
+    <StyledCheckboxContainer justifyContent={justifyContent} style={style}>
       {position === 'left' && (
         <StyledCheckbox htmlFor="chk" checked={checked} size={size}>
           {checked && <CheckIcon size={checkIconSize[size]} />}
@@ -68,6 +70,7 @@ const StyledCheckboxLabel = styled.label<{ size: CheckboxSizeType }>`
   margin-right: ${({ size }) => (size === 'small' ? '0.5rem' : '1rem')};
   cursor: pointer;
   user-select: none;
+  color: ${({ theme }) => theme.themeValues.colorValues.grayscale[600]};
 `;
 
 const StyledHiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
