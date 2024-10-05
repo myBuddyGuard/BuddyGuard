@@ -59,8 +59,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 쿠키에 토큰 저장
         response.addCookie(createCookie("access", accessToken));
         response.addCookie(createCookie("refresh", refreshToken));
-        response.setHeader("Set-Cookie", "access=" + accessToken + "; HttpOnly; Path=/; SameSite=None; Secure");
-        response.setHeader("Set-Cookie", "refresh=" + refreshToken + "; HttpOnly; Path=/; SameSite=None; Secure");
         response.sendRedirect("http://localhost:5173/");
     }
 
