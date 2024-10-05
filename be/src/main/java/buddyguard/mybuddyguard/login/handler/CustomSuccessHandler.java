@@ -56,15 +56,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // refresh 토큰 저장
         saveRefreshToken(userId, refreshToken, 7 * 24 * 60 * 60L);
 
-        // body에 토큰 저장
-        Map<String, String> bodyMap = new HashMap<>();
-        bodyMap.put("refresh", refreshToken);
-        bodyMap.put("access", accessToken);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String body = mapper.writeValueAsString(bodyMap);
-
-        response.getWriter().write(body);
+        // 쿠키에 토큰 저장
+        response.addCookie(createCookie("access", accessToken));
+        response.addCookie(createCookie("refresh", refreshToken));
+        response.sendRedirect("http://localhost:5713/");
     }
 
     /**
