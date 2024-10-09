@@ -1,6 +1,7 @@
 package buddyguard.mybuddyguard.pet.repository;
 
 import buddyguard.mybuddyguard.pet.entity.UserPet;
+import buddyguard.mybuddyguard.pet.utils.UserPetRole;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,8 @@ public interface UserPetRepository extends JpaRepository<UserPet, Long> {
     List<UserPet> getAllByPetId(Long petId);
 
     boolean existsByUserIdAndPetId(Long userId, Long petId);
+
+    boolean existsByUserIdAndPetIdAndRole(Long userId, Long petId, UserPetRole role);
+
+    boolean existsByPetIdAndRole(Long petId, UserPetRole role);
 }

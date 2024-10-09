@@ -7,14 +7,14 @@ import buddyguard.mybuddyguard.pet.contoller.request.PetUpdateInformationRequest
 import buddyguard.mybuddyguard.pet.contoller.response.PetWithUserListResponse;
 import buddyguard.mybuddyguard.pet.entity.Pet;
 import buddyguard.mybuddyguard.pet.entity.UserPet;
+import buddyguard.mybuddyguard.pet.exception.InvalidPetRegisterException;
 import buddyguard.mybuddyguard.pet.mapper.PetMapper;
 import buddyguard.mybuddyguard.pet.mapper.UserPetMapper;
 import buddyguard.mybuddyguard.pet.repository.PetRepository;
 import buddyguard.mybuddyguard.pet.repository.UserPetRepository;
 import buddyguard.mybuddyguard.pet.utils.UserPetRole;
-import buddyguard.mybuddyguard.weight.exception.InvalidPetRegisterException;
-import buddyguard.mybuddyguard.weight.exception.PetNotFoundException;
-import buddyguard.mybuddyguard.weight.exception.UserInformationNotFoundException;
+import buddyguard.mybuddyguard.exception.PetNotFoundException;
+import buddyguard.mybuddyguard.exception.UserInformationNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;

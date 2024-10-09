@@ -1,4 +1,4 @@
-package buddyguard.mybuddyguard.weight.exception;
+package buddyguard.mybuddyguard.pet.exception;
 
 import buddyguard.mybuddyguard.exception.BusinessException;
 import org.springframework.http.HttpStatus;

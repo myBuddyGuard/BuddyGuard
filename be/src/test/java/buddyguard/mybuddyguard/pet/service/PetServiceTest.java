@@ -7,6 +7,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import buddyguard.mybuddyguard.exception.PetNotFoundException;
+import buddyguard.mybuddyguard.exception.UserInformationNotFoundException;
 import buddyguard.mybuddyguard.login.entity.Users;
 import buddyguard.mybuddyguard.login.repository.UserRepository;
 import buddyguard.mybuddyguard.pet.contoller.request.PetRegisterRequest;
@@ -14,14 +16,11 @@ import buddyguard.mybuddyguard.pet.contoller.request.PetUpdateInformationRequest
 import buddyguard.mybuddyguard.pet.contoller.response.PetWithUserListResponse;
 import buddyguard.mybuddyguard.pet.entity.Pet;
 import buddyguard.mybuddyguard.pet.entity.UserPet;
-import buddyguard.mybuddyguard.pet.mapper.PetMapper;
+import buddyguard.mybuddyguard.pet.exception.InvalidPetRegisterException;
 import buddyguard.mybuddyguard.pet.repository.PetRepository;
 import buddyguard.mybuddyguard.pet.repository.UserPetRepository;
 import buddyguard.mybuddyguard.pet.utils.PetType;
 import buddyguard.mybuddyguard.pet.utils.UserPetRole;
-import buddyguard.mybuddyguard.weight.exception.InvalidPetRegisterException;
-import buddyguard.mybuddyguard.weight.exception.PetNotFoundException;
-import buddyguard.mybuddyguard.weight.exception.UserInformationNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
