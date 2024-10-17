@@ -25,14 +25,19 @@ interface CommonCalendarProps {
   schedules?: Schedule[];
   onDateChange: (date: string) => void;
 }
+type ValuePiece = Date | null;
 
-export const CommonCalendar: React.FC<CommonCalendarProps> = ({ schedules = [], onDateChange }) => {
-  const [date, setDate] = useState<Date | null>(null);
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+export const CommonCalendar: React.FC<CommonCalendarProps> = ({ schedules, onDateChange }) => {
+  const [value, onChange] = useState<Value>(new Date());
 
-  const handleDateChange = (newDate: Date) => {
-    const formattedDate = moment(newDate).format('YYYY-MM-DD');
-    setDate(newDate);
-    onDateChange(formattedDate);
+  const handleDateChange = (newDate: Value) => {
+    const selectedDate = Array.isArray(newDate) ? newDate[0] : newDate;
+    if (selectedDate instanceof Date) {
+      const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
+      onChange(newDate);
+      onDateChange(formattedDate);
+    }
   };
 
   // 캘린더에 일정이 있으면 점 표시
@@ -45,8 +50,8 @@ export const CommonCalendar: React.FC<CommonCalendarProps> = ({ schedules = [], 
   return (
     <StyledCalendarWrapper>
       <StyledCalendar
-        value={date}
-        onChange={handleDateChange}
+        value={value}
+        onChange={handleDateChange} 
         tileContent={tileContent}
         formatDay={(locale, date) => moment(date).format('D')}
         formatYear={(locale, date) => moment(date).format('YYYY')}
@@ -61,7 +66,6 @@ export const CommonCalendar: React.FC<CommonCalendarProps> = ({ schedules = [], 
     </StyledCalendarWrapper>
   );
 };
-
 // 스타일
 const StyledCalendarWrapper = styled.div`
   width: 100%;
