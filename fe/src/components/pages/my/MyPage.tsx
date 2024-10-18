@@ -4,7 +4,7 @@ import UserInfoBar from '@/components/organisms/UserInfoBar';
 import { useUserInfoQuery } from '@/hooks/useUserAPI';
 
 export default function MyPage() {
-  const { data: userInfo, isSuccess } = useUserInfoQuery(); 
+  const { data: userInfo, isSuccess } = useUserInfoQuery();
 
   if (!isSuccess || !userInfo) {
     return <div>Loading...</div>;

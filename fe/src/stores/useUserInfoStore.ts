@@ -13,6 +13,5 @@ export const useUserInfoStore = create<UserState & UserActions>((set) => ({
   userId: 0,
   petsId: [],
 
-  
   setUserInfo: (userId, petsId) => set({ userId, petsId }),
 }));

@@ -5,6 +5,8 @@ import Health from '@/components/pages/Health';
 import Home from '@/components/pages/Home';
 import Login from '@/components/pages/login/Login';
 import Menu from '@/components/pages/Menu';
+import MyBuddy from '@/components/pages/my/MyBuddy';
+import MyPage from '@/components/pages/my/MyPage';
 import NotFound from '@/components/pages/NotFound';
 import Notification from '@/components/pages/Notification';
 import Schedule from '@/components/pages/Schedule';
@@ -13,8 +15,6 @@ import Walk from '@/components/pages/walk/Walk';
 import Weight from '@/components/pages/Weight';
 import ResponsiveLayout from '@/components/templates/ResponsiveLayout';
 import RequireAuth from '@/routes/requireAuth';
-import MyPage from '@/components/pages/my/MyPage';
-import MyBuddy from '@/components/pages/my/MyBuddy';
 
 export const router = createBrowserRouter([
   {
