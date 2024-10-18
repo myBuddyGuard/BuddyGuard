@@ -5,6 +5,7 @@ import Health from '@/components/pages/Health';
 import Home from '@/components/pages/Home';
 import Login from '@/components/pages/login/Login';
 import Menu from '@/components/pages/Menu';
+import AddBuddy from '@/components/pages/my/AddBuddy';
 import MyBuddy from '@/components/pages/my/MyBuddy';
 import MyPage from '@/components/pages/my/MyPage';
 import NotFound from '@/components/pages/NotFound';
@@ -71,6 +72,16 @@ export const router = createBrowserRouter([
       <RequireAuth>
         <ResponsiveLayout>
           <MyBuddy />
+        </ResponsiveLayout>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/MyPage/AddBuddy',
+    element: (
+      <RequireAuth>
+        <ResponsiveLayout>
+          <AddBuddy />
         </ResponsiveLayout>
       </RequireAuth>
     ),
