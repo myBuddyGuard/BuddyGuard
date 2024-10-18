@@ -2,7 +2,7 @@ import moment from 'moment';
 // import React, { useState } from 'react';
 import React from 'react';
 import { Calendar } from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+
 import styled from 'styled-components';
 
 // 카테고리별 색상 맵
