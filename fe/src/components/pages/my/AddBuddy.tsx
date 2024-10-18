@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
-import Span from '@/components/atoms/Span';
+import PageTitleBar from '@/components/molecules/PageTitleBar';
 import { useCreatePetMutation } from '@/hooks/usePetAPI';
 import { usePetStore } from '@/stores/usePetStore';
 import { PetData } from '@/types/pet';
@@ -36,32 +37,79 @@ export default function AddBuddy() {
   };
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <Span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>새 버디 추가하기</Span>
-      <form onSubmit={handleSubmit}>
-        <Input name="name" value={formData.name} onChange={handleInputChange} placeholder="버디 이름" required />
-        <Input
+    <Container>
+      <PageTitleBar title="내 정보" />
+
+      <FormTitle>새로운 버디 추가</FormTitle>
+      <Form onSubmit={handleSubmit}>
+        <StyledInput name="name" value={formData.name} onChange={handleInputChange} placeholder="버디 이름" required />
+        <StyledInput
           name="type"
           value={formData.type}
           onChange={handleInputChange}
           placeholder="종 (개, 고양이 등)"
           required
         />
-        <Input
+        <StyledInput
           name="birth"
           value={formData.birth}
           onChange={handleInputChange}
           placeholder="생일 (YYYY-MM-DD)"
           required
         />
-        <Input
+        <StyledInput
           name="profile_image"
           value={formData.profile_image}
           onChange={handleInputChange}
           placeholder="프로필 이미지 URL"
         />
-        <Button type="submit">버디 추가</Button>
-      </form>
-    </div>
+
+        <StyledButton type="submit">버디 추가</StyledButton>
+      </Form>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+`;
+
+const FormTitle = styled.h3`
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledInput = styled(Input)`
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  border: 1px solid #ccc;
+  border-radius: 0.4rem;
+  &:focus {
+    outline: none;
+    border-color: orange;
+  }
+`;
+
+const StyledButton = styled(Button)`
+  padding: 1rem;
+  background-color: orange;
+  color: white;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  &:hover {
+    background-color: orange;
+  }
+`;
