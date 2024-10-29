@@ -4,7 +4,6 @@ import buddyguard.mybuddyguard.walk.controller.response.WalkRecordDetailResponse
 import buddyguard.mybuddyguard.walk.controller.response.WalkRecordResponse;
 import buddyguard.mybuddyguard.walk.controller.response.WalkStatsWithRecordsResponse;
 import buddyguard.mybuddyguard.walk.entity.WalkRecord;
-import buddyguard.mybuddyguard.walk.mapper.WalkRecordMapper;
 import buddyguard.mybuddyguard.walk.repository.WalkRecordRepository;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -72,11 +71,11 @@ public class WalkRecordStatsService {
         String averageTime = calculateAverageTime(totalDuration, count);
 
         // 통계 정보를 담은 WalkRecordDetailResponse 생성
-        WalkRecordDetailResponse stats = WalkRecordMapper.toDetailResponse(count, averageDistance, averageTime);
+        WalkRecordDetailResponse stats = WalkRecordDetailResponse.toDetailResponse(count, averageDistance, averageTime);
 
         // 개별 기록 리스트를 WalkRecordResponse로 변환하여 함께 반환
         List<WalkRecordResponse> recordResponses = records.stream()
-                .map(WalkRecordMapper::toResponse)
+                .map(WalkRecordResponse::toResponse)
                 .collect(Collectors.toList());
 
         // 통계와 기록 리스트를 포함한 응답 생성

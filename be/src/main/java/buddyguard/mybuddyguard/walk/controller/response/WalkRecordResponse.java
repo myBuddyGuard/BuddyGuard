@@ -1,5 +1,7 @@
 package buddyguard.mybuddyguard.walk.controller.response;
 
+import buddyguard.mybuddyguard.walk.entity.PetWalkRecord;
+import buddyguard.mybuddyguard.walk.entity.WalkRecord;
 import buddyguard.mybuddyguard.walk.entity.WalkRecordCenterPosition;
 import buddyguard.mybuddyguard.walk.entity.WalkRecordPath;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +27,28 @@ public record WalkRecordResponse(
         Double distance,                 // 총 거리
         String fileUrl
 ) {
+    public static WalkRecordResponse toResponse(WalkRecord walkRecord) {
+        return WalkRecordResponse.builder()
+                .id(walkRecord.getId())  // 산책 기록 ID
+                .buddyIds(walkRecord.getPetWalkRecords().stream()
+                        .map(PetWalkRecord::getPetId)
+                        .toList())
+                .startDate(walkRecord.getStartDate())  // 산책 시작 날짜
+                .endDate(walkRecord.getEndDate())      // 산책 종료 날짜
+                .startTime(walkRecord.getStartTime())  // 산책 시작 시간
+                .endTime(walkRecord.getEndTime())      // 산책 종료 시간
+                .totalTime(walkRecord.getTotalTime())  // 총 산책 시간
+                .note(walkRecord.getNote())            // 산책에 대한 메모
+                .centerPosition(WalkRecordResponse.WalkRecordPosition.fromWalkRecordCenterPosition(walkRecord.getCenterPosition()))  // 중심 위치
+                .mapLevel(walkRecord.getMapLevel())    // 지도 레벨
+                .path(walkRecord.getPath().stream()
+                        .map(WalkRecordResponse.WalkRecordPosition::fromWalkRecordPath)
+                        .toList()
+                )            // 산책 경로
+                .distance(walkRecord.getDistance())    // 총 거리
+                .fileUrl(walkRecord.getPathImage().getImageUrl()) // 이미지 URL 설정
+                .build();
+    }
 
     @Getter
     @AllArgsConstructor

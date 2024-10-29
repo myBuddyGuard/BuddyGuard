@@ -11,7 +11,6 @@ import buddyguard.mybuddyguard.walk.entity.PetWalkRecord;
 import buddyguard.mybuddyguard.walk.entity.WalkRecord;
 import buddyguard.mybuddyguard.walk.entity.WalkRecordCenterPosition;
 import buddyguard.mybuddyguard.walk.entity.WalkRecordPath;
-import buddyguard.mybuddyguard.walk.mapper.WalkRecordMapper;
 import buddyguard.mybuddyguard.walk.repository.PetWalkRecordRepository;
 import buddyguard.mybuddyguard.walk.repository.WalkRecordCenterPositionRepository;
 import buddyguard.mybuddyguard.walk.repository.WalkRecordPathRepository;
@@ -44,7 +43,7 @@ public class WalkRecordService {
     public List<WalkRecordResponse> getAllWalkRecords(Long petId) {
         return walkRecordRepository.findAll().stream()
                 .filter(record -> record.hasBuddy(petId)) // buddyIds에서 해당 petId를 확인
-                .map(WalkRecordMapper::toResponse)
+                .map(WalkRecordResponse::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -52,7 +51,7 @@ public class WalkRecordService {
     public WalkRecordResponse getWalkRecord(Long id, Long petId) {
         return walkRecordRepository.findById(id)
                 .filter(record -> record.hasBuddy(petId)) // 특정 기록에서 petId 확인
-                .map(WalkRecordMapper::toResponse)
+                .map(WalkRecordResponse::toResponse)
                 .orElseThrow(RecordNotFoundException::new); // petId가 포함된 기록이 없을 때 예외 처리
     }
 
