@@ -5,9 +5,7 @@ import buddyguard.mybuddyguard.hospital.controller.request.HospitalRecordCreateR
 import buddyguard.mybuddyguard.hospital.controller.request.HospitalRecordUpdateRequest;
 import buddyguard.mybuddyguard.hospital.entity.HospitalRecord;
 import buddyguard.mybuddyguard.exception.RecordNotFoundException;
-import buddyguard.mybuddyguard.hospital.mapper.HospitalRecordMapper;
 import buddyguard.mybuddyguard.hospital.repository.HospitalRecordRepository;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,17 +27,17 @@ public class HospitalRecordService {
             throw new RecordNotFoundException();
         }
 
-        return HospitalRecordMapper.toResponseList(records);
+        return HospitalRecordResponse.toResponseList(records);
     }
 
     public HospitalRecordResponse getHospitalRecord(Long id, Long petId) {
         HospitalRecord record = hospitalRecordRepository.findByIdAndPetId(id, petId).orElseThrow(RecordNotFoundException::new);
-        return HospitalRecordMapper.toResponse(record);
+        return HospitalRecordResponse.toResponse(record);
     }
 
     @Transactional
     public void createHospitalRecord(HospitalRecordCreateRequest request) {
-        HospitalRecord hospitalRecord = HospitalRecordMapper.toEntity(
+        HospitalRecord hospitalRecord = HospitalRecordCreateRequest.toHospitalRecord(
                 request.petId(), request);
 
         HospitalRecord saveHospitalRecord = hospitalRecordRepository.save(hospitalRecord);

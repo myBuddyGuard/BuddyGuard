@@ -4,7 +4,6 @@ import buddyguard.mybuddyguard.hospital.controller.reponse.HospitalRecordRespons
 import buddyguard.mybuddyguard.hospital.controller.request.HospitalRecordCreateRequest;
 import buddyguard.mybuddyguard.hospital.controller.request.HospitalRecordUpdateRequest;
 import buddyguard.mybuddyguard.hospital.entity.HospitalRecord;
-import buddyguard.mybuddyguard.hospital.mapper.HospitalRecordMapper;
 import buddyguard.mybuddyguard.hospital.repository.HospitalRecordRepository;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +88,7 @@ class HospitalRecordServiceTest {
         assertThat(result)
                 .isNotNull()
                 .usingRecursiveComparison()
-                .isEqualTo(HospitalRecordMapper.toResponse(sampleHospitalRecord));
+                .isEqualTo(HospitalRecordResponse.toResponse(sampleHospitalRecord));
         verify(hospitalRecordRepository).findByIdAndPetId(hospitalRecordId, petId);
     }
 
@@ -100,10 +99,9 @@ class HospitalRecordServiceTest {
         Long userId = 1L;
         Long petId = 1L;
 
-        HospitalRecordCreateRequest request = new HospitalRecordCreateRequest(
-                userId, petId,
+        HospitalRecordCreateRequest request = new HospitalRecordCreateRequest(petId,
                 LocalDateTime.now(), "병원", "정기 검진");
-        HospitalRecord hospitalRecord = HospitalRecordMapper.toEntity(
+        HospitalRecord hospitalRecord = HospitalRecordCreateRequest.toHospitalRecord(
                 petId, request);
         when(hospitalRecordRepository.save(any(HospitalRecord.class))).thenReturn(hospitalRecord);
 
@@ -136,7 +134,7 @@ class HospitalRecordServiceTest {
         hospitalRecordService.updateHospitalRecord(title, petId, updateRequest);
 
         // Then
-        verify(hospitalRecordRepository).findByIdAndPetId(title,petId);
+        verify(hospitalRecordRepository).findByIdAndPetId(title, petId);
         verify(hospitalRecordRepository).save(any(HospitalRecord.class));
     }
 
@@ -152,7 +150,7 @@ class HospitalRecordServiceTest {
         hospitalRecordService.deleteHospitalRecord(hospitalRecordId, petId);
 
         // Then
-        verify(hospitalRecordRepository).findByIdAndPetId(hospitalRecordId,petId);
+        verify(hospitalRecordRepository).findByIdAndPetId(hospitalRecordId, petId);
         verify(hospitalRecordRepository).delete(sampleHospitalRecord);
     }
 }

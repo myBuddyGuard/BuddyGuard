@@ -3,7 +3,6 @@ package buddyguard.mybuddyguard.schedule.service;
 import buddyguard.mybuddyguard.exception.RecordNotFoundException;
 import buddyguard.mybuddyguard.hospital.controller.reponse.HospitalRecordResponse;
 import buddyguard.mybuddyguard.hospital.entity.HospitalRecord;
-import buddyguard.mybuddyguard.hospital.mapper.HospitalRecordMapper;
 import buddyguard.mybuddyguard.jwt.service.TokenService;
 import buddyguard.mybuddyguard.jwt.utils.TokenUtility;
 import buddyguard.mybuddyguard.pet.repository.PetRepository;
@@ -62,7 +61,7 @@ public class ScheduleService {
                 ? new ArrayList<>() : WeightMapper.toResponseList(weights);
 
         List<HospitalRecordResponse> hospitalResponses = hospitals.isEmpty()
-                ? new ArrayList<>() : HospitalRecordMapper.toResponseList(hospitals);
+                ? new ArrayList<>() : HospitalRecordResponse.toResponseList(hospitals);
 
         return new ScheduleMonthlyResponse(weightResponses, hospitalResponses);
     }
