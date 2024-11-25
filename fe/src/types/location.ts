@@ -6,7 +6,8 @@ export type LocationErrorCode =
   | 'RETRY_FAILED'
   | 'UNKNOWN_ERROR';
 
-export interface CustomLocationError {
-  type: LocationErrorCode;
+export interface CustomLocationErrorState {
+  code: LocationErrorCode;
   message: string;
+  action?: 'retry' | 'home' | 'setting';
 }
