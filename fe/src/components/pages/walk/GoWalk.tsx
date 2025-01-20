@@ -130,6 +130,7 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
       )}
       {isStarted === 'done' && (
         <WalkModal
+          threshold={threshold}
           formTitle={'산책 완료'}
           timeRef={timeRef}
           linePathRef={linePathRef}
