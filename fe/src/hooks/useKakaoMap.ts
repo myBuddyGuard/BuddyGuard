@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { IsStartedType } from '@/components/pages/walk/GoWalk';

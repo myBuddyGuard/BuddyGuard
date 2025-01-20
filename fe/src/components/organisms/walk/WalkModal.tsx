@@ -132,6 +132,7 @@ export default function WalkModal({
       longitude: latLng.getLng(),
     }));
     setValue('path', pathData);
+    message.info(`pathData.length:${pathData.length}`);
   }, [linePathRef, setValue]);
 
   useEffect(() => {
