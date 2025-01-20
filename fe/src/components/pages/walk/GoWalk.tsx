@@ -44,7 +44,7 @@ const getTitlePetId = () => {
   return titleBuddyId ? [titleBuddyId] : [];
 };
 
-export default function GoWalk() {
+export default function GoWalk({ threshold }: { threshold: number | undefined }) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const timeRef = useRef<TimeRef>(initTimeRef);
@@ -74,6 +74,7 @@ export default function GoWalk() {
   }, []);
 
   useKakaoMap({
+    threshold,
     mapRef,
     buddyList,
     selectedBuddys,

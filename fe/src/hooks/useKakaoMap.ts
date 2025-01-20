@@ -20,11 +20,11 @@ import {
 } from '@/helper/kakaoMapHelpers';
 import { BuddysType, PositionPair, PositionType, SelectedBuddysType, StatusOfTime } from '@/types/map';
 import { drawGrid, fillBackground, initCanvas } from '@/utils/canvasUtils';
-import { calculateDistance, calculateTotalDistance } from '@/utils/mapUtils';
-import { getCurrentDate } from '@/utils/timeUtils';
+import { calculateDistance } from '@/utils/mapUtils';
 import { delay } from '@/utils/utils';
 
 export interface UseKakaoMapProps {
+  threshold: number | undefined;
   mapRef: React.RefObject<HTMLDivElement>;
   buddyList: BuddysType[];
   selectedBuddys: SelectedBuddysType;
@@ -53,9 +53,10 @@ export interface SetOverlayProps {
 }
 
 /** 거리 임계 값(미터 단위) */
-const THRESHOLD_METER = 50;
+// const THRESHOLD_METER = 50;
 
 export const useKakaoMap = ({
+  threshold,
   mapRef,
   buddyList,
   selectedBuddys,
@@ -109,12 +110,30 @@ export const useKakaoMap = ({
         // 이전 위치와 거리 계산
         const prevPosition = positions.current;
 
+        //TEST: 1. 임계값 없는 경우 (undefined or 0)
+        if (!threshold) {
+          // linePath에 좌표 추가
+          linePathRef.current.push(newLatLng);
+
+          // 마커와 오버레이 위치 업데이트
+          markerRef.current?.setPosition(newLatLng);
+          overlayRef.current?.setPosition(newLatLng);
+
+          // 상태 업데이트
+          setPositions((prev) => ({
+            previous: prev.current,
+            current: updatedPosition,
+          }));
+          return;
+        }
+
+        // 임계값이 있는 경우 거리 계산
         const distance = prevPosition
           ? calculateDistance(prevPosition[0], prevPosition[1], updatedPosition[0], updatedPosition[1]) * 1000
           : null;
 
         // 위치 변화가 거리 임계 값 이상일 경우에만 업데이트
-        if (distance && distance >= THRESHOLD_METER) {
+        if (distance && distance >= threshold) {
           // linePath에 좌표 추가
           linePathRef.current.push(newLatLng);
 
@@ -132,7 +151,7 @@ export const useKakaoMap = ({
         console.error('Error fetching position:', error);
       }
     },
-    [positions, linePathRef, markerRef, overlayRef]
+    [positions, linePathRef, markerRef, overlayRef, threshold]
   );
 
   /** Geolocation API로 위치 감지 시작 */
