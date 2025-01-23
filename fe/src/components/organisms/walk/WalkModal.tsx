@@ -26,7 +26,6 @@ export interface WalkModalProps {
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
   changedPosition: PositionType | null;
   map: kakao.maps.Map | null;
-  threshold: number | undefined;
 }
 
 export interface FormDataType {
@@ -62,7 +61,6 @@ const initFormData: FormDataType = {
 };
 
 export default function WalkModal({
-  threshold,
   formTitle,
   timeRef,
   linePathRef,
@@ -134,7 +132,6 @@ export default function WalkModal({
       longitude: latLng.getLng(),
     }));
     setValue('path', pathData);
-    message.info(`임계값 : ${threshold} \n pathData.length:${pathData.length}`);
   }, [linePathRef, setValue]);
 
   useEffect(() => {
