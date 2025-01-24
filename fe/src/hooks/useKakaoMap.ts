@@ -1,9 +1,7 @@
-import { message } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { IsStartedType } from '@/components/pages/walk/GoWalk';
 import { DEFAULT_MAP_LEVEL, DEFAULT_MAP_POSITION } from '@/constants/map';
-import { convertImageAndSave, drawPath } from '@/helper/drawHelpers';
 import {
   adjustMapBounds,
   centerChangedEventListener,
@@ -20,8 +18,9 @@ import {
   setOverlay,
 } from '@/helper/kakaoMapHelpers';
 import { BuddysType, PositionPair, PositionType, SelectedBuddysType, StatusOfTime } from '@/types/map';
-import { drawGrid, fillBackground, initCanvas } from '@/utils/canvasUtils';
+import { fromKakaoLatLng } from '@/utils/adaptors/kakao';
 import { calculateDistance } from '@/utils/mapUtils';
+import RouteSnapshot from '@/utils/RouteSnapshot';
 import { delay } from '@/utils/utils';
 
 export interface UseKakaoMapProps {
@@ -83,12 +82,6 @@ export const useKakaoMap = ({
     previous: null, // 초기에는 이전 위치가 없으므로 null
     current: DEFAULT_MAP_POSITION, // 기본 위치를 현재 위치로 설정
   });
-
-  const canvasWidth = 600;
-  const canvasHeight = 600;
-  const canvasGridGab = 50;
-  const canvasPaddingX = canvasWidth * 0.1;
-  const canvasPaddingY = canvasHeight * 0.1;
 
   /** 마커의 새로운 위치로 오버레이 이동 */
   const replaceCustomOverLay = ({ overlayRef, markerRef }: Pick<SetOverlayProps, 'overlayRef' | 'markerRef'>) => {
@@ -217,35 +210,17 @@ export const useKakaoMap = ({
   // 산책 종료 후 경로 그리고 이미지 저장
   useEffect(() => {
     const donelogic = async () => {
-      const canvas = canvasRef.current;
-      if (!canvas) {
-        console.error('Canvas not found');
-        return;
-      }
-
-      const ctx = initCanvas(canvas, canvasWidth, canvasHeight);
-      if (!ctx) {
-        console.error('Context not found');
-        return;
-      }
-
-      const filledCtx = fillBackground(ctx, canvasWidth, canvasHeight);
-      const gridedCtx = drawGrid(filledCtx, canvasWidth, canvasHeight, canvasGridGab);
-
       const linePath = linePathRef.current;
+      console.log('linePath: ', linePath);
+      if (!(canvasRef?.current instanceof HTMLCanvasElement)) return;
+      const snapShot = new RouteSnapshot({
+        canvasRef: { current: canvasRef.current },
+        routes: fromKakaoLatLng(linePathRef.current),
+      });
+      const imageURL = snapShot.generate();
 
-      if (!(linePath && linePath.length > 0)) {
-        console.error('No path to draw');
-        return;
-      }
-
-      const isDrawn = drawPath(gridedCtx, linePath, canvasWidth, canvasHeight, canvasPaddingX, canvasPaddingY);
-
-      if (isDrawn) {
-        convertImageAndSave(canvas, setCapturedImage);
-      } else {
-        console.error('Path drawn fail');
-      }
+      if (!imageURL) return;
+      setCapturedImage(imageURL);
 
       await delay(1500);
       setIsStarted('done');
@@ -255,7 +230,7 @@ export const useKakaoMap = ({
     if (walkStatus === 'stop' && mapRef.current && canvasRef.current && changedPosition) {
       donelogic();
     }
-  }, [canvasRef, changedPosition, mapRef, setCapturedImage, walkStatus]);
+  }, [canvasRef, changedPosition, linePathRef, mapRef, setCapturedImage, walkStatus]);
 
   // 종료 버튼
   useEffect(() => {
