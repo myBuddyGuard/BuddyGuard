@@ -91,20 +91,26 @@ export default class RouteSnapshot {
 
   private drawRoute() {
     const { latMin, latMax, lngMin, lngMax } = this.getRouteBounds();
+
     const {
       width: canvasWidth,
       height: canvasHeight,
       paddingX: canvasPaddingX,
       paddingY: canvasPaddingY,
     } = this.config.canvas;
+
     const { color: lineColor, width: lineWidth } = this.config.line;
 
     this.ctx.beginPath();
+
+    // console.log(this.routes);
     this.ctx.strokeStyle = lineColor;
     this.ctx.lineWidth = lineWidth;
 
+    // 위도(Latitude): Y축 (세로 방향, 북/남)
+    // 경도(Longitude): X축 (가로 방향, 동/서)
     this.routes.forEach((point, index) => {
-      const x = canvasPaddingX + ((point.latitude - lngMin) / (lngMax - lngMin)) * (canvasWidth - 2 * canvasPaddingX);
+      const x = canvasPaddingX + ((point.longitude - lngMin) / (lngMax - lngMin)) * (canvasWidth - 2 * canvasPaddingX);
       const y =
         canvasHeight -
         canvasPaddingY -
@@ -139,6 +145,10 @@ export default class RouteSnapshot {
     }
   }
 
+  private clearCanvas(): void {
+    this.ctx.clearRect(0, 0, this.config.canvas.width, this.config.canvas.height);
+  }
+
   private fillCanvasBackground(): void {
     const { bgColor, width, height } = this.config.canvas;
     this.ctx.fillStyle = bgColor;
@@ -147,6 +157,7 @@ export default class RouteSnapshot {
 
   generate(): string | void {
     try {
+      this.clearCanvas();
       this.fillCanvasBackground();
       if (this.config.grid.enabled) {
         this.drawGrid();
