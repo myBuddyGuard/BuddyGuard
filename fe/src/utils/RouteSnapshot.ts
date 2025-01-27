@@ -1,3 +1,7 @@
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
 export interface RoutePoint {
   latitude: number;
   longitude: number;
@@ -39,7 +43,7 @@ const DEFAULT_CONFIG: RouteSnapshotConfig = {
 interface RouteSnapshotOptions {
   canvasRef: React.MutableRefObject<HTMLCanvasElement> | null;
   routes: RoutePoint[];
-  config?: Partial<RouteSnapshotConfig>;
+  config?: DeepPartial<RouteSnapshotConfig>;
 }
 
 export default class RouteSnapshot {
@@ -102,8 +106,6 @@ export default class RouteSnapshot {
     const { color: lineColor, width: lineWidth } = this.config.line;
 
     this.ctx.beginPath();
-
-    // console.log(this.routes);
     this.ctx.strokeStyle = lineColor;
     this.ctx.lineWidth = lineWidth;
 
