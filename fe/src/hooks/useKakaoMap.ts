@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { RouteSnapshot, fromKakaoLatLng } from 'route-snap';
 
 import { IsStartedType } from '@/components/pages/walk/GoWalk';
 import { DEFAULT_MAP_LEVEL, DEFAULT_MAP_POSITION } from '@/constants/map';
@@ -18,9 +19,7 @@ import {
   setOverlay,
 } from '@/helper/kakaoMapHelpers';
 import { BuddysType, PositionPair, PositionType, SelectedBuddysType, StatusOfTime } from '@/types/map';
-import { fromKakaoLatLng } from '@/utils/adaptors/kakao';
 import { calculateDistance } from '@/utils/mapUtils';
-import RouteSnapshot from '@/utils/RouteSnapshot';
 import { delay } from '@/utils/utils';
 
 export interface UseKakaoMapProps {
@@ -51,9 +50,6 @@ export interface SetOverlayProps {
   customContents: HTMLDivElement;
   closeButton: HTMLImageElement;
 }
-
-/** 거리 임계 값(미터 단위) */
-// const THRESHOLD_METER = 50;
 
 export const useKakaoMap = ({
   threshold,
@@ -213,10 +209,12 @@ export const useKakaoMap = ({
       const linePath = linePathRef.current;
       console.log('linePath: ', linePath);
       if (!(canvasRef?.current instanceof HTMLCanvasElement)) return;
+
       const snapShot = new RouteSnapshot({
         canvasRef: { current: canvasRef.current },
         routes: fromKakaoLatLng(linePathRef.current),
       });
+
       const imageURL = snapShot.generate();
 
       if (!imageURL) return;
