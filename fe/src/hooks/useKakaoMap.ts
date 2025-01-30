@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { RouteSnapshot, fromKakaoLatLng } from 'route-snap';
 
 import { IsStartedType } from '@/components/pages/walk/GoWalk';
 import { DEFAULT_MAP_LEVEL, DEFAULT_MAP_POSITION } from '@/constants/map';
-import { convertImageAndSave, drawPath } from '@/helper/drawHelpers';
 import {
   adjustMapBounds,
   centerChangedEventListener,
@@ -19,12 +19,11 @@ import {
   setOverlay,
 } from '@/helper/kakaoMapHelpers';
 import { BuddysType, PositionPair, PositionType, SelectedBuddysType, StatusOfTime } from '@/types/map';
-import { drawGrid, fillBackground, initCanvas } from '@/utils/canvasUtils';
-import { calculateDistance, calculateTotalDistance } from '@/utils/mapUtils';
-import { getCurrentDate } from '@/utils/timeUtils';
+import { calculateDistance } from '@/utils/mapUtils';
 import { delay } from '@/utils/utils';
 
 export interface UseKakaoMapProps {
+  threshold: number | undefined;
   mapRef: React.RefObject<HTMLDivElement>;
   buddyList: BuddysType[];
   selectedBuddys: SelectedBuddysType;
@@ -52,10 +51,8 @@ export interface SetOverlayProps {
   closeButton: HTMLImageElement;
 }
 
-/** 거리 임계 값(미터 단위) */
-const THRESHOLD_METER = 50;
-
 export const useKakaoMap = ({
+  threshold,
   mapRef,
   buddyList,
   selectedBuddys,
@@ -82,12 +79,6 @@ export const useKakaoMap = ({
     current: DEFAULT_MAP_POSITION, // 기본 위치를 현재 위치로 설정
   });
 
-  const canvasWidth = 600;
-  const canvasHeight = 600;
-  const canvasGridGab = 50;
-  const canvasPaddingX = canvasWidth * 0.1;
-  const canvasPaddingY = canvasHeight * 0.1;
-
   /** 마커의 새로운 위치로 오버레이 이동 */
   const replaceCustomOverLay = ({ overlayRef, markerRef }: Pick<SetOverlayProps, 'overlayRef' | 'markerRef'>) => {
     if (!(overlayRef.current && markerRef.current)) return;
@@ -109,12 +100,30 @@ export const useKakaoMap = ({
         // 이전 위치와 거리 계산
         const prevPosition = positions.current;
 
+        //TEST: 1. 임계값 없는 경우 (undefined or 0)
+        if (!threshold) {
+          // linePath에 좌표 추가
+          linePathRef.current.push(newLatLng);
+
+          // 마커와 오버레이 위치 업데이트
+          markerRef.current?.setPosition(newLatLng);
+          overlayRef.current?.setPosition(newLatLng);
+
+          // 상태 업데이트
+          setPositions((prev) => ({
+            previous: prev.current,
+            current: updatedPosition,
+          }));
+          return;
+        }
+
+        // 임계값이 있는 경우 거리 계산
         const distance = prevPosition
           ? calculateDistance(prevPosition[0], prevPosition[1], updatedPosition[0], updatedPosition[1]) * 1000
           : null;
 
         // 위치 변화가 거리 임계 값 이상일 경우에만 업데이트
-        if (distance && distance >= THRESHOLD_METER) {
+        if (distance && distance >= threshold) {
           // linePath에 좌표 추가
           linePathRef.current.push(newLatLng);
 
@@ -132,7 +141,7 @@ export const useKakaoMap = ({
         console.error('Error fetching position:', error);
       }
     },
-    [positions, linePathRef, markerRef, overlayRef]
+    [positions, linePathRef, markerRef, overlayRef, threshold]
   );
 
   /** Geolocation API로 위치 감지 시작 */
@@ -197,35 +206,19 @@ export const useKakaoMap = ({
   // 산책 종료 후 경로 그리고 이미지 저장
   useEffect(() => {
     const donelogic = async () => {
-      const canvas = canvasRef.current;
-      if (!canvas) {
-        console.error('Canvas not found');
-        return;
-      }
-
-      const ctx = initCanvas(canvas, canvasWidth, canvasHeight);
-      if (!ctx) {
-        console.error('Context not found');
-        return;
-      }
-
-      const filledCtx = fillBackground(ctx, canvasWidth, canvasHeight);
-      const gridedCtx = drawGrid(filledCtx, canvasWidth, canvasHeight, canvasGridGab);
-
       const linePath = linePathRef.current;
+      console.log('linePath: ', linePath);
+      if (!(canvasRef?.current instanceof HTMLCanvasElement)) return;
 
-      if (!(linePath && linePath.length > 0)) {
-        console.error('No path to draw');
-        return;
-      }
+      const snapShot = new RouteSnapshot({
+        canvasRef: { current: canvasRef.current },
+        routes: fromKakaoLatLng(linePathRef.current),
+      });
 
-      const isDrawn = drawPath(gridedCtx, linePath, canvasWidth, canvasHeight, canvasPaddingX, canvasPaddingY);
+      const imageURL = snapShot.generate();
 
-      if (isDrawn) {
-        convertImageAndSave(canvas, setCapturedImage);
-      } else {
-        console.error('Path drawn fail');
-      }
+      if (!imageURL) return;
+      setCapturedImage(imageURL);
 
       await delay(1500);
       setIsStarted('done');
@@ -235,7 +228,7 @@ export const useKakaoMap = ({
     if (walkStatus === 'stop' && mapRef.current && canvasRef.current && changedPosition) {
       donelogic();
     }
-  }, [canvasRef, changedPosition, mapRef, setCapturedImage, walkStatus]);
+  }, [canvasRef, changedPosition, linePathRef, mapRef, setCapturedImage, walkStatus]);
 
   // 종료 버튼
   useEffect(() => {

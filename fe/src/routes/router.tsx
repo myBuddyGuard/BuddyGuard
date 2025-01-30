@@ -44,7 +44,47 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth>
         <ResponsiveLayout>
-          <GoWalk />
+          <GoWalk threshold={50} />
+        </ResponsiveLayout>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/test/no-threshold',
+    element: (
+      <RequireAuth>
+        <ResponsiveLayout>
+          <GoWalk threshold={undefined} />
+        </ResponsiveLayout>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/test/threshold-10',
+    element: (
+      <RequireAuth>
+        <ResponsiveLayout>
+          <GoWalk threshold={10} />
+        </ResponsiveLayout>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/test/threshold-50',
+    element: (
+      <RequireAuth>
+        <ResponsiveLayout>
+          <GoWalk threshold={50} />
+        </ResponsiveLayout>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/test/threshold-100',
+    element: (
+      <RequireAuth>
+        <ResponsiveLayout>
+          <GoWalk threshold={100} />
         </ResponsiveLayout>
       </RequireAuth>
     ),

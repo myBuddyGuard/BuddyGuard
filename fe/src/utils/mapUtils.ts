@@ -32,12 +32,3 @@ export const calculateTotalDistance = (path: kakao.maps.LatLng[]): number => {
 
   return parseFloat(totalDistance.toFixed(3));
 };
-
-/** 위도/경도 범위 계산 */
-export const calculateLatLng = (path: kakao.maps.LatLng[]) => {
-  const latMin = Math.min(...path.map((p) => p.getLat()));
-  const latMax = Math.max(...path.map((p) => p.getLat()));
-  const lngMin = Math.min(...path.map((p) => p.getLng()));
-  const lngMax = Math.max(...path.map((p) => p.getLng()));
-  return { latMin, latMax, lngMin, lngMax };
-};
