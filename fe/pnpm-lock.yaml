@@ -62,6 +62,9 @@ importers:
       recharts:
         specifier: 2.13.0-alpha.5
         version: 2.13.0-alpha.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      route-snap:
+        specifier: ^1.0.0
+        version: 1.0.0
       styled-components:
         specifier: ^6.1.13
         version: 6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5640,6 +5643,9 @@ packages:
     resolution: {integrity: sha512-7sqRtBNnEbcBtMeRVc6VRsJMmpI+JU1z9VTvW8D4gXIYQFz0aLcsE6rRkyghZkLfEgUZgVvOG7A5CVz/VW5GIA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  route-snap@1.0.0:
+    resolution: {integrity: sha512-7LmlFoclwSr59o00g8qXU/I6g1sv3PTxUIO/ZB4IzSo+wF8Rwji2UIvHS1dTWodrF/eNV4Ivb3JEpbs4Kxwfrw==}
 
   rrweb-cssom@0.7.1:
     resolution: {integrity: sha512-TrEMa7JGdVm0UThDJSx7ddw5nVm3UJS9o9CCIZ72B1vSyEZoziDqBYP3XIoi/12lKrJR8rE3jeFHMok2F/Mnsg==}
@@ -12808,6 +12814,8 @@ snapshots:
       '@rollup/rollup-win32-ia32-msvc': 4.21.3
       '@rollup/rollup-win32-x64-msvc': 4.21.3
       fsevents: 2.3.3
+
+  route-snap@1.0.0: {}
 
   rrweb-cssom@0.7.1: {}
 
