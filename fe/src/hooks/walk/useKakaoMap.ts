@@ -24,7 +24,6 @@ import { delay } from '@/utils/utils';
 
 export interface UseKakaoMapProps {
   threshold: number | undefined;
-  mapRef: React.RefObject<HTMLDivElement>;
   buddyList: BuddysType[];
   selectedBuddys: SelectedBuddysType;
   isTargetClicked: boolean;
@@ -34,11 +33,6 @@ export interface UseKakaoMapProps {
   walkStatus: StatusOfTime;
   setCapturedImage: React.Dispatch<React.SetStateAction<string | null>>;
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
-  linePathRef: React.MutableRefObject<kakao.maps.LatLng[]>;
-  changedPosition: PositionType | null;
-  setChangedPosition: React.Dispatch<React.SetStateAction<PositionType | null>>;
-  map: kakao.maps.Map | null;
-  setMap: React.Dispatch<React.SetStateAction<kakao.maps.Map | null>>;
 }
 
 export interface SetOverlayProps {
@@ -53,7 +47,6 @@ export interface SetOverlayProps {
 
 export const useKakaoMap = ({
   threshold,
-  mapRef,
   buddyList,
   selectedBuddys,
   isTargetClicked,
@@ -61,14 +54,13 @@ export const useKakaoMap = ({
   isStarted,
   setIsStarted,
   walkStatus,
-  setCapturedImage,
   canvasRef,
-  linePathRef,
-  changedPosition,
-  setChangedPosition,
-  map,
-  setMap,
 }: UseKakaoMapProps) => {
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const linePathRef = useRef<kakao.maps.LatLng[]>([]);
+  const [map, setMap] = useState<kakao.maps.Map | null>(null);
+  const [changedPosition, setChangedPosition] = useState<PositionType | null>(null);
+
   const watchID = useRef<number | null>(null); // watchPosition ID
 
   const markerRef = useRef<kakao.maps.Marker | null>(null);
@@ -397,5 +389,5 @@ export const useKakaoMap = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [map]);
 
-  return map;
+  return { map, mapRef, linePathRef, changedPosition };
 };

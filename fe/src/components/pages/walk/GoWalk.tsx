@@ -10,7 +10,6 @@ import { useKakaoMap } from '@/hooks/walk/useKakaoMap';
 import { useWalkBuddys } from '@/hooks/walk/useWalkBuddys';
 import { useWalkTime } from '@/hooks/walk/useWalkTime';
 import { fillAvailable } from '@/styles/layoutStyles';
-import { PositionType } from '@/types/map';
 
 import WalkMap from './WalkMap';
 
@@ -28,30 +27,21 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
   const [capturedImage, setCapturedImage] = useState<string | null>(null); // 캡처된 이미지를 저장할 상태
 
   // 5. 카카오맵 관련
-  const mapRef = useRef<HTMLDivElement | null>(null);
-  const linePathRef = useRef<kakao.maps.LatLng[]>([]);
-  const [map, setMap] = useState<kakao.maps.Map | null>(null);
-  const [changedPosition, setChangedPosition] = useState<PositionType | null>(null);
+
   const [isTargetClicked, setIsTargetClicked] = useState(false);
   const navigate = useNavigate();
 
-  useKakaoMap({
+  const { map, mapRef, linePathRef, changedPosition } = useKakaoMap({
     threshold,
-    mapRef,
     buddyList,
     selectedBuddys,
     isTargetClicked,
-    setIsTargetClicked,
+    setIsTargetClicked, //TODO
     isStarted,
     setIsStarted,
     walkStatus,
     setCapturedImage,
     canvasRef,
-    linePathRef,
-    changedPosition,
-    setChangedPosition,
-    map,
-    setMap,
   });
 
   const handleTargetIcon = () => setIsTargetClicked((prev) => !prev);
