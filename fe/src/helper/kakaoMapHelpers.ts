@@ -3,7 +3,7 @@ import { message } from 'antd';
 import { defaultShadow } from '@/components/atoms/Button';
 import { DEFAULT_MAP_POSITION } from '@/constants/map';
 import { KAKAOMAP_API_SRC } from '@/constants/urlConstants';
-import { SetOverlayProps } from '@/hooks/useKakaoMap';
+import { SetOverlayProps } from '@/hooks/walk/useKakaoMap';
 import { BuddysType, PositionPair, PositionType, SelectedBuddysType } from '@/types/map';
 import closeIcon from '@public/assets/icons/closeIcon.png';
 import mascot from '@public/assets/images/mascot.png';

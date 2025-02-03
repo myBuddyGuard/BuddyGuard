@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { getTimeFormatString } from '@/helper/timerHelpers';
-import useStopWatch from '@/hooks/useStopWatch';
+import useStopWatch from '@/hooks/walk/useStopWatch';
 import { StatusOfTime, TimeRef } from '@/types/map';
 
 export interface StopWatchProps {
