@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -8,18 +8,11 @@ import WalkBuddySelectBar, { BUDDY_SELECTBAR_HEIGHT } from '@/components/molecul
 import WalkSatusBar from '@/components/molecules/walk/WalkSatusBar';
 import { NAV_HEIGHT } from '@/components/organisms/Nav';
 import WalkModal from '@/components/organisms/walk/WalkModal';
-import { useKakaoMap } from '@/hooks/useKakaoMap';
+import { useKakaoMap } from '@/hooks/walk/useKakaoMap';
+import { useWalkBuddys } from '@/hooks/walk/useWalkBuddys';
+import { useWalkTime } from '@/hooks/walk/useWalkTime';
 import { fillAvailable } from '@/styles/layoutStyles';
-import {
-  BuddysType,
-  CheckboxChangeHandler,
-  PositionType,
-  SelectedBuddysType,
-  StatusOfTime,
-  TimeRef,
-} from '@/types/map';
-import { PetInfo } from '@/types/pet';
-import { getCurrentDate } from '@/utils/timeUtils';
+import { PositionType } from '@/types/map';
 import targetIcon from '@public/assets/icons/targetIcon.png';
 
 const playIconStyle = {
@@ -30,48 +23,31 @@ const playIconStyle = {
 };
 
 const PLAY_ICON_GAP = '5rem';
-export const initTimeRef: TimeRef = {
-  start: { day: new Date(), time: '' },
-  end: { day: new Date(), time: '' },
-  total: '',
-};
+
 export type IsStartedType = 'ready' | 'start' | 'done';
 
-const getTitlePetId = () => {
-  const petsStorage = localStorage.getItem('petsStorage');
-  if (!petsStorage) return [];
-  const titleBuddyId = JSON.parse(petsStorage)?.state?.selectedBuddy?.petId;
-  return titleBuddyId ? [titleBuddyId] : [];
-};
-
 export default function GoWalk({ threshold }: { threshold: number | undefined }) {
-  const mapRef = useRef<HTMLDivElement | null>(null);
+  // 1. 시간 관련
+  const { timeRef, walkStatus, setWalkStatus, startTime } = useWalkTime();
+
+  // 2. 버디 선택 관련
+  const { buddyList, selectBuddy, selectedBuddys } = useWalkBuddys();
+
+  // 3. 산책 상태 관리
+  const [isStarted, setIsStarted] = useState<IsStartedType>('ready');
+
+  // 4. 지도 캡처 관련
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const timeRef = useRef<TimeRef>(initTimeRef);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null); // 캡처된 이미지를 저장할 상태
+
+  // 5. 카카오맵 관련
+  const mapRef = useRef<HTMLDivElement | null>(null);
   const linePathRef = useRef<kakao.maps.LatLng[]>([]);
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [changedPosition, setChangedPosition] = useState<PositionType | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null); // 캡처된 이미지를 저장할 상태
-  const [isStarted, setIsStarted] = useState<IsStartedType>('ready');
-  const [selectedBuddys, setSelectedBuddys] = useState<SelectedBuddysType>(getTitlePetId()); // 클릭한 버디
-  const [buddyList, setBuddyList] = useState<BuddysType[]>([{ id: 0, img: '', name: '' }]);
   const [isTargetClicked, setIsTargetClicked] = useState(false);
-  const [walkStatus, setWalkStatus] = useState<StatusOfTime>('start');
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const petsStorage = localStorage.getItem('petsStorage');
-    if (!petsStorage) return;
-    const buddysList = JSON.parse(petsStorage)?.state?.petsInfo?.map(({ petId, petName, profileImage }: PetInfo) => ({
-      id: petId,
-      img: profileImage,
-      name: petName,
-    }));
-    if (buddysList) {
-      setBuddyList(buddysList);
-    }
-  }, []);
 
   useKakaoMap({
     threshold,
@@ -103,13 +79,8 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
       return;
     }
     setIsStarted('start');
-    // timeRef.current.start.day = getCurrentDate({ isDay: true, isTime: false });
-    timeRef.current.start.day = new Date();
-    timeRef.current.start.time = getCurrentDate({ isDay: false, isTime: true });
+    startTime();
   };
-
-  const selectBuddy: CheckboxChangeHandler = (selectId: number, isSelect) =>
-    setSelectedBuddys((prev) => (isSelect ? [...prev, selectId] : prev.filter((buddyId) => buddyId !== selectId)));
 
   return (
     <StyledWalkWrapper>
