@@ -10,12 +10,12 @@ import mascot from '@public/assets/images/mascot.png';
 export const BUDDY_SELECTBAR_HEIGHT = '10rem';
 
 export interface WalkBuddySelectBarProps {
-  buddys: BuddysType[];
+  buddyList: BuddysType[];
   selectedBuddys: SelectedBuddysType;
-  handleOnChange: CheckboxChangeHandler;
+  selectBuddy: CheckboxChangeHandler;
 }
 
-export default function WalkBuddySelectBar({ buddys, selectedBuddys, handleOnChange }: WalkBuddySelectBarProps) {
+export default function WalkBuddySelectBar({ buddyList, selectedBuddys, selectBuddy }: WalkBuddySelectBarProps) {
   const theme = useTheme();
   const spanColor = theme.currentTheme.textSubtle;
 
@@ -27,13 +27,13 @@ export default function WalkBuddySelectBar({ buddys, selectedBuddys, handleOnCha
         <Span style={{ color: spanColor }}>함께 산책할 버디를 선택해 주세요</Span>
       </section>
 
-      <StyledSlideWrapper $buddyCount={buddys.length || 0}>
-        {buddys.map(({ id, img, name }) => (
+      <StyledSlideWrapper $buddyCount={buddyList.length || 0}>
+        {buddyList.map(({ id, img, name }) => (
           <StyledBuddyWrapper key={`duddy-${id}`}>
             <StyledCheckbox
               checkBoxId={`${id}`}
               isChecked={isChecked(id)}
-              handleOnChange={() => handleOnChange(id, !isChecked(id))}
+              handleOnChange={() => selectBuddy(id, !isChecked(id))}
             />
             <StyledImgWrapper>
               <Image
