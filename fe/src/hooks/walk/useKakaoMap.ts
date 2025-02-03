@@ -31,7 +31,6 @@ export interface UseKakaoMapProps {
   isStarted: IsStartedType;
   setIsStarted: React.Dispatch<React.SetStateAction<IsStartedType>>;
   walkStatus: StatusOfTime;
-  setCapturedImage: React.Dispatch<React.SetStateAction<string | null>>;
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
 }
 
@@ -210,7 +209,6 @@ export const useKakaoMap = ({
       const imageURL = snapShot.generate();
 
       if (!imageURL) return;
-      setCapturedImage(imageURL);
 
       await delay(1500);
       setIsStarted('done');
@@ -220,7 +218,7 @@ export const useKakaoMap = ({
     if (walkStatus === 'stop' && mapRef.current && canvasRef.current && changedPosition) {
       donelogic();
     }
-  }, [canvasRef, changedPosition, linePathRef, mapRef, setCapturedImage, walkStatus]);
+  }, [canvasRef, changedPosition, linePathRef, mapRef, walkStatus]);
 
   // 종료 버튼
   useEffect(() => {

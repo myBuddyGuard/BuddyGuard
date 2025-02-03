@@ -24,7 +24,6 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
   const [isStarted, setIsStarted] = useState<IsStartedType>('ready');
   // 4. 지도 캡처 관련
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null); // 캡처된 이미지를 저장할 상태
 
   // 5. 카카오맵 관련
 
@@ -40,7 +39,6 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
     isStarted,
     setIsStarted,
     walkStatus,
-    setCapturedImage,
     canvasRef,
   });
 
