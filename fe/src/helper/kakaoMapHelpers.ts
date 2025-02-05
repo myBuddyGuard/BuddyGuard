@@ -246,7 +246,7 @@ const checkGeolocationPermission = async (): Promise<boolean> => {
 };
 
 /** 현재 위치 가져오기 */
-export const getcurrentLocation = async (): Promise<getcurrentLocationResultType> => {
+export const getcurrentPosition = async (): Promise<getcurrentLocationResultType> => {
   if (!('geolocation' in navigator)) {
     return { result: false, message: '🌍 Geolocation not supported', position: DEFAULT_MAP_POSITION };
   }
