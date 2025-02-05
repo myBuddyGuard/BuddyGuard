@@ -12,13 +12,13 @@ import { IsStartedType } from './GoWalk';
 interface WalkMapProps {
   mapRef: RefObject<HTMLDivElement>;
   isStarted: IsStartedType;
-  handleTargetIcon: () => void;
+  handleTargetClick: () => void;
   handleStartIcon: () => void;
 }
 
 const PLAY_ICON_GAP = '5rem';
 
-export default function WalkMap({ mapRef, isStarted, handleTargetIcon, handleStartIcon }: WalkMapProps) {
+export default function WalkMap({ mapRef, isStarted, handleTargetClick, handleStartIcon }: WalkMapProps) {
   const playIconStyle = {
     $stroke: 'white',
     $shadow: '2px 2px 5px rgba(0, 0, 0, 0.5)',
@@ -31,7 +31,7 @@ export default function WalkMap({ mapRef, isStarted, handleTargetIcon, handleSta
       {isStarted === 'ready' && <StyledBlockLayer />}
       {isStarted === 'ready' && <StyledPlayIcon customStyle={playIconStyle} onClick={handleStartIcon} />}
       {isStarted === 'start' && (
-        <StyledTargetIcon onClick={handleTargetIcon}>
+        <StyledTargetIcon onClick={handleTargetClick}>
           <img src={targetIcon} />
         </StyledTargetIcon>
       )}
