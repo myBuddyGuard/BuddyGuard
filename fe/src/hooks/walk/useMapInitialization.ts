@@ -21,6 +21,8 @@ export const useMapInitialization = ({
   const markerRef = useRef<kakao.maps.Marker | null>(null);
 
   useEffect(() => {
+    const mapElement = mapRef.current;
+
     const initialize = async () => {
       await loadKakaoMapScript();
 
@@ -28,7 +30,7 @@ export const useMapInitialization = ({
 
       updatePosition(position);
 
-      if (!(window.kakao && mapRef.current)) {
+      if (!(window.kakao && mapElement)) {
         throw new Error('🚨 Kakao map or map reference not available');
       }
 
@@ -57,8 +59,8 @@ export const useMapInitialization = ({
       }
 
       // 지도 컨테이너 초기화
-      if (mapRef.current) {
-        mapRef.current.innerHTML = '';
+      if (mapElement) {
+        mapElement.innerHTML = '';
       }
 
       // 위치 상태 초기화
