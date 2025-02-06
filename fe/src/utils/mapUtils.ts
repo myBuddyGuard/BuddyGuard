@@ -1,5 +1,10 @@
-/** Haversine 공식을 이용한 거리 계산 */
-export const calculateDistance = (prevLat: number, prevLng: number, currentLat: number, currentLng: number): number => {
+/** Haversine 공식을 이용한 거리 계산 (단위 km) */
+export const calculateDistanceKM = (
+  prevLat: number,
+  prevLng: number,
+  currentLat: number,
+  currentLng: number
+): number => {
   const R = 6371; // 지구 반지름 (단위: km)
   const dLat = ((currentLat - prevLat) * Math.PI) / 180; // 위도 차이 (radian)
   const dLng = ((currentLng - prevLng) * Math.PI) / 180; // 경도 차이 (radian)
@@ -27,7 +32,7 @@ export const calculateTotalDistance = (path: kakao.maps.LatLng[]): number => {
     const currentLat = path[idx + 1].getLat();
     const currentLng = path[idx + 1].getLng();
 
-    return (acc += calculateDistance(prevLat, prevLng, currentLat, currentLng));
+    return (acc += calculateDistanceKM(prevLat, prevLng, currentLat, currentLng));
   }, 0);
 
   return parseFloat(totalDistance.toFixed(3));
