@@ -16,6 +16,9 @@ import WalkMap from './WalkMap';
 export type IsStartedType = 'ready' | 'start' | 'done';
 
 export default function GoWalk({ threshold }: { threshold: number | undefined }) {
+  const navigate = useNavigate();
+  const [isTargetClicked, setIsTargetClicked] = useState(false);
+
   // 1. 시간 관련
   const { timeRef, walkStatus, setWalkStatus, startTime } = useWalkTime();
   // 2. 버디 선택 관련
@@ -26,10 +29,6 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // 5. 카카오맵 관련
-
-  const [isTargetClicked, setIsTargetClicked] = useState(false);
-  const navigate = useNavigate();
-
   const { map, mapRef, linePathRef, changedPosition } = useKakaoMap({
     threshold,
     buddyList,

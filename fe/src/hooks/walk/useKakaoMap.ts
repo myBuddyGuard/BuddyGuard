@@ -55,6 +55,9 @@ export const useKakaoMap = ({
   walkStatus,
   canvasRef,
 }: UseKakaoMapProps) => {
+  const [isMapScriptLoaded, setIsMapScriptLoaded] = useState(false);
+  const [isPositionReady, setIsPositionReady] = useState(false);
+
   const mapRef = useRef<HTMLDivElement | null>(null);
   const linePathRef = useRef<kakao.maps.LatLng[]>([]);
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
@@ -303,89 +306,112 @@ export const useKakaoMap = ({
       handleMapMoveAndStateUpdate();
   }, [isTargetClicked, positions, changedPosition, map, walkStatus, handleMapMoveAndStateUpdate, setIsTargetClicked]);
 
+  // ✅ 1. 맵 스크립트 로드
   useEffect(() => {
-    const initMap = async () => {
-      try {
-        //1. 스크립트 로드
-        await loadKakaoMapScript();
-
-        // 2. 위치 권한 상태 확인
-        // const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-        // console.log('4. Location permission status:', permissionStatus.state);
-
-        // 3. 위치 가져오기
-        const currentLocation = await getcurrentPosition();
-
-        // 4. 가져온 위치 셋팅
-        setPositions((prev) => ({ ...prev, current: currentLocation }));
-
-        if (!(window.kakao && mapRef.current)) return;
-
-        window.kakao.maps.load(() => {
-          const mapInstance = createMap(currentLocation, mapRef, setChangedPosition);
-          const newMarker = createMarker(currentLocation, mapInstance);
-          setMap(mapInstance);
-          markerRef.current = newMarker;
-        });
-      } catch (error) {
-        console.error('Map initialization error:', error);
-      }
+    const loadScript = async () => {
+      await loadKakaoMapScript();
+      setIsMapScriptLoaded(() => true);
     };
-    if (!map) initMap();
+
+    loadScript();
+  }, []);
+
+  // ✅ 2. 위치 가져오기 (맵 스크립트 로드 완료 후)
+  useEffect(() => {
+    // TODO: 위치 권한 상태 확인하고 없을 경우 예외 처리하기
+    // const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+    if (!isMapScriptLoaded) return;
+
+    const fetchLocation = async () => {
+      const currentPosition = await getcurrentPosition();
+
+      if (currentPosition.result === false) {
+        console.error('Error fetching position:', currentPosition.message);
+        return;
+      }
+      setPositions((prev) => ({ ...prev, current: currentPosition.position }));
+      setIsPositionReady(() => true);
+    };
+
+    fetchLocation();
+  }, [isMapScriptLoaded]);
+
+  // ✅ 3. 지도,마커 초기화 (위치 가져오기 완료 후)
+  useEffect(() => {
+    if (!(isPositionReady && window.kakao && mapRef.current)) return;
+
+    window.kakao.maps.load(() => {
+      const mapInstance = createMap(positions.current, mapRef, setChangedPosition);
+      const newMarker = createMarker(positions.current, mapInstance);
+      setMap(mapInstance);
+      markerRef.current = newMarker;
+    });
 
     return () => {
-      // 필수적인 cleanup만 남기기
-      if (map) {
-        // 이벤트 리스너 제거
-        kakao.maps.event.removeListener(map, 'center_changed', () =>
-          centerChangedEventListener(map, setChangedPosition)
-        );
-
-        // 마커 제거
-        if (markerRef.current) {
-          markerRef.current.setMap(null);
-          markerRef.current = null;
-        }
-
-        // 오버레이 제거
-        if (overlayRef.current) {
-          overlayRef.current.setMap(null);
-          overlayRef.current = null;
-        }
-
-        // 지도 컨테이너 초기화
-        if (mapRef.current) {
-          mapRef.current.innerHTML = '';
-        }
-        // 위치 추적 중지
-        if (watchID.current !== null) {
-          navigator.geolocation.clearWatch(watchID.current);
-          watchID.current = null;
-        }
-
-        // polyline 제거
-        if (linePathRef.current.length > 0) {
-          linePathRef.current = [];
-        }
-        // 상태 초기화
-        setPositions({ previous: null, current: DEFAULT_MAP_POSITION });
-        setChangedPosition(null);
-
-        // 지도 인스턴스 제거
-        map.relayout();
-        setMap(null);
+      if (markerRef.current) {
+        markerRef.current.setMap(null);
+        markerRef.current = null;
       }
     };
-  }, [mapRef, map]);
+  }, [isPositionReady, positions]);
 
   useEffect(() => {
     const handleResize = () => {
       if (!map) return;
       map.relayout();
     };
+
     window.addEventListener('resize', handleResize);
+
     return () => window.removeEventListener('resize', handleResize);
   }, [map]);
+
+  // 첫 지도 셋팅
+  // useEffect(() => {
+  //   return () => {
+  //     // 필수적인 cleanup만 남기기
+  //     if (map) {
+  //       // 이벤트 리스너 제거
+  //       kakao.maps.event.removeListener(map, 'center_changed', () =>
+  //         centerChangedEventListener(map, setChangedPosition)
+  //       );
+
+  //       // 마커 제거
+  //       if (markerRef.current) {
+  //         markerRef.current.setMap(null);
+  //         markerRef.current = null;
+  //       }
+
+  //       // 오버레이 제거
+  //       if (overlayRef.current) {
+  //         overlayRef.current.setMap(null);
+  //         overlayRef.current = null;
+  //       }
+
+  //       // 지도 컨테이너 초기화
+  //       if (mapRef.current) {
+  //         mapRef.current.innerHTML = '';
+  //       }
+  //       // 위치 추적 중지
+  //       if (watchID.current !== null) {
+  //         navigator.geolocation.clearWatch(watchID.current);
+  //         watchID.current = null;
+  //       }
+
+  //       // polyline 제거
+  //       if (linePathRef.current.length > 0) {
+  //         linePathRef.current = [];
+  //       }
+  //       // 상태 초기화
+  //       setPositions({ previous: null, current: DEFAULT_MAP_POSITION });
+  //       setChangedPosition(null);
+
+  //       // 지도 인스턴스 제거
+  //       map.relayout();
+  //       setMap(null);
+  //     }
+  //   };
+  // }, [mapRef, map]);
 
   return { map, mapRef, linePathRef, changedPosition };
 };
