@@ -11,7 +11,7 @@ import {
   createOverLayElement,
   createPolyline,
   drawPolylineOnMap,
-  getcurrentLocation,
+  getcurrentPosition,
   getMapPosition,
   isPositionsDifferent,
   loadKakaoMapScript,
@@ -19,7 +19,7 @@ import {
   setOverlay,
 } from '@/helper/kakaoMapHelpers';
 import { BuddysType, PositionPair, PositionType, SelectedBuddysType, StatusOfTime } from '@/types/map';
-import { calculateDistance } from '@/utils/mapUtils';
+import { calculateDistanceKM } from '@/utils/mapUtils';
 import { delay } from '@/utils/utils';
 
 export interface UseKakaoMapProps {
@@ -110,7 +110,7 @@ export const useKakaoMap = ({
 
         // 임계값이 있는 경우 거리 계산
         const distance = prevPosition
-          ? calculateDistance(prevPosition[0], prevPosition[1], updatedPosition[0], updatedPosition[1]) * 1000
+          ? calculateDistanceKM(prevPosition[0], prevPosition[1], updatedPosition[0], updatedPosition[1]) * 1000
           : null;
 
         // 위치 변화가 거리 임계 값 이상일 경우에만 업데이트
@@ -314,7 +314,7 @@ export const useKakaoMap = ({
         // console.log('4. Location permission status:', permissionStatus.state);
 
         // 3. 위치 가져오기
-        const currentLocation = await getcurrentLocation();
+        const currentLocation = await getcurrentPosition();
 
         // 4. 가져온 위치 셋팅
         setPositions((prev) => ({ ...prev, current: currentLocation }));
