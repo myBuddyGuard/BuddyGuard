@@ -77,21 +77,22 @@ export const useKakaoMapTracking = ({ threshold, positions, setPositions, marker
 
   /** Geolocation API로 위치 감지 시작 */
   const startWatchingPosition = useCallback(() => {
-    if (watchID && watchID?.current && navigator.geolocation) {
-      watchID.current = navigator.geolocation.watchPosition(
-        (position) => handlePositionUpdate(position),
-        (error) => {
-          console.error('Error fetching position', error);
-        },
-        {
-          enableHighAccuracy: true, // 고정밀도 사용
-          timeout: 10000, // 10초 내에 위치 정보 못 가져오면 실패 처리
-          maximumAge: 0, // 캐시된 위치 정보 사용 안함
-        }
-      );
-    } else {
+    if (watchID.current !== null || !navigator.geolocation) {
       console.error('Geolocation API not supported by this browser.');
+      return;
     }
+
+    watchID.current = navigator.geolocation.watchPosition(
+      (position) => handlePositionUpdate(position),
+      (error) => {
+        console.error('Error fetching position', error);
+      },
+      {
+        enableHighAccuracy: true, // 고정밀도 사용
+        timeout: 10000, // 10초 내에 위치 정보 못 가져오면 실패 처리
+        maximumAge: 0, // 캐시된 위치 정보 사용 안함
+      }
+    );
   }, [handlePositionUpdate]);
 
   /** Geolocation API로 위치 감지 중단 */
