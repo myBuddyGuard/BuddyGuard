@@ -2,15 +2,8 @@ import { useEffect, useState } from 'react';
 import { RouteSnapshot, fromKakaoLatLng } from 'route-snap';
 
 import { IsStartedType } from '@/components/pages/walk/GoWalk';
-import { DEFAULT_MAP_LEVEL, DEFAULT_MAP_POSITION } from '@/constants/map';
-import {
-  adjustMapBounds,
-  createOverLayElement,
-  getMapPosition,
-  moveMapTo,
-  replaceCustomOverLay,
-  setOverlay,
-} from '@/helper/kakaoMapHelpers';
+import { DEFAULT_MAP_POSITION } from '@/constants/map';
+import { adjustMapBounds, createOverLayElement, replaceCustomOverLay, setOverlay } from '@/helper/kakaoMapHelpers';
 import { BuddysType, PositionPair, SelectedBuddysType, StatusOfTime } from '@/types/map';
 import { delay } from '@/utils/utils';
 
@@ -179,15 +172,6 @@ export const useKakaoMap = ({
     startWatchingPosition,
     stopWatchingPosition,
   ]);
-
-  // 위치가 변경되었을 때 지도 중심 이동 (지도 다시 초기화하지 않음)
-  useEffect(() => {
-    if (map && positions.previous) {
-      const moveLatLon = getMapPosition(positions);
-      setChangedPosition(() => [positions.current[0], positions.current[1]]);
-      moveMapTo(map, moveLatLon, DEFAULT_MAP_LEVEL);
-    }
-  }, [positions, map]);
 
   // 첫 지도 셋팅
   // useEffect(() => {

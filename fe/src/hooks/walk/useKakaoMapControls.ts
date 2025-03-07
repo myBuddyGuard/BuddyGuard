@@ -51,6 +51,15 @@ export const useKakaoMapControls = ({
     map.relayout();
   }, [map]);
 
+  // 위치가 변경되었을 때 지도 중심 이동 (지도 다시 초기화하지 않음)
+  useEffect(() => {
+    if (map && positions.previous) {
+      const moveLatLon = getMapPosition(positions);
+      setChangedPosition(() => [positions.current[0], positions.current[1]]);
+      moveMapTo(map, moveLatLon, DEFAULT_MAP_LEVEL);
+    }
+  }, [positions, map, setChangedPosition]);
+
   // 리사이즈 이벤트 리스너
   useEffect(() => {
     window.addEventListener('resize', handleMapResize);
