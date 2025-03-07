@@ -40,11 +40,6 @@ export const useKakaoMapControls = ({
     adjustMapBounds(map, linePathRef.current);
   }, [map, linePathRef]);
 
-  /** 타겟 버튼 클릭 핸들러 */
-  const handleTargetButtonClick = useCallback(() => {
-    setIsTargetClicked(() => true);
-  }, [setIsTargetClicked]);
-
   /** 지도 리사이즈 핸들러 */
   const handleMapResize = useCallback(() => {
     if (!map) return;
@@ -90,7 +85,5 @@ export const useKakaoMapControls = ({
 
   return {
     handleMapMoveAndStateUpdate,
-    adjustMapBoundsToPath,
-    handleTargetButtonClick,
   };
 };

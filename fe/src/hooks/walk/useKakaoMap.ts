@@ -63,10 +63,10 @@ export const useKakaoMap = ({
   });
 
   // 경로 그리기 로직
-  const { handleDrawPolyline } = useKakaoMapDrawing({ map, linePathRef, positions });
+  useKakaoMapDrawing({ map, linePathRef, positions });
 
   // 지도의 조작 및 제어 관련
-  const { handleMapMoveAndStateUpdate, adjustMapBoundsToPath, handleTargetButtonClick } = useKakaoMapControls({
+  const { handleMapMoveAndStateUpdate } = useKakaoMapControls({
     map,
     positions,
     linePathRef,
@@ -76,13 +76,6 @@ export const useKakaoMap = ({
     setChangedPosition,
     walkStatus,
   });
-
-  // 오버레이 설정
-  useEffect(() => {
-    if (!(isStarted === 'start' && map && selectedBuddys.length && markerRef.current)) return;
-    const { customContents, closeButton } = createOverLayElement(selectedBuddys, buddyList);
-    setOverlay({ isStarted, selectedBuddys, overlayRef, markerRef, map, customContents, closeButton });
-  }, [isStarted, map, selectedBuddys, buddyList]);
 
   // 산책 종료 후 경로 그린 이미지 저장
   useEffect(() => {
@@ -115,40 +108,51 @@ export const useKakaoMap = ({
     if (!(walkStatus === 'stop' && map && linePathRef.current && overlayRef.current)) return;
 
     // 오버레이 제거
-    if (overlayRef.current) {
-      // console.log('👽 오버레이 제거');
-      overlayRef.current.setMap(null);
-    }
-    // 위치 추적 중지
-    if (watchID.current !== null) {
-      // console.log('👽 위치추적 중지');
-      stopWatchingPosition();
-    }
-
-    // bounds_changed 이벤트 리스너 추가
-    const handleBoundsChanged = () => {
-      // 지도가 실제로 업데이트된 후에 실행됨
-      const newCenter = map.getCenter();
-      // console.log('👽 3. 지도 범위가 설정된 후 중심 좌표 및 레벨 저장:', newCenter);
-      setChangedPosition([newCenter.getLat(), newCenter.getLng()]);
-
-      // 실행 후 리스너 제거 (한 번만 실행되도록)
-      kakao.maps.event.removeListener(map, 'bounds_changed', handleBoundsChanged);
+    const removeOverlay = () => {
+      if (overlayRef.current) {
+        overlayRef.current.setMap(null);
+      }
     };
 
-    // 리스너 등록
-    // console.log('👽 2. bounds_changed 이벤트 리스너 추가');
-    kakao.maps.event.addListener(map, 'bounds_changed', handleBoundsChanged);
+    // 위치 추적 중지
+    const stopTracking = () => {
+      if (watchID.current !== null) {
+        stopWatchingPosition();
+      }
+    };
+
+    // 중심점 변경 이벤트 처리( bounds_changed 이벤트 리스너 추가)
+    const setupBoundsChangedListener = () => {
+      // 지도가 실제로 업데이트된 후에 실행됨
+      const handleBoundsChanged = () => {
+        const newCenter = map.getCenter();
+        setChangedPosition([newCenter.getLat(), newCenter.getLng()]);
+
+        // 실행 후 리스너 제거 (한 번만 실행되도록)
+        kakao.maps.event.removeListener(map, 'bounds_changed', handleBoundsChanged);
+      };
+
+      kakao.maps.event.addListener(map, 'bounds_changed', handleBoundsChanged);
+    };
+
+    removeOverlay();
+    stopTracking();
+    setupBoundsChangedListener();
 
     adjustMapBounds(map, linePathRef.current);
-
     map.relayout();
-  }, [map, walkStatus, stopWatchingPosition]);
+  }, [map, walkStatus, stopWatchingPosition, setChangedPosition, watchID]);
 
-  // 시작, 일시중지, 재시작
+  // 시작, 일시중지, 재시작 - 목적별로 분리
   useEffect(() => {
-    // 시작 시 위치 업데이트 재개 + 마커의 새로운 위치로 오버레이 이동
-    if (isStarted === 'start' && walkStatus === 'start' && map && selectedBuddys.length) {
+    const handleWalkStart = () => {
+      if (!(isStarted === 'start' && walkStatus === 'start' && map && selectedBuddys.length)) return;
+
+      // 오버레이 설정
+      const { customContents, closeButton } = createOverLayElement(selectedBuddys, buddyList);
+      setOverlay({ isStarted, selectedBuddys, overlayRef, markerRef, map, customContents, closeButton });
+
+      // 시작 시 위치 업데이트 재개 + 마커의 새로운 위치로 오버레이 이동
       replaceCustomOverLay({ overlayRef, markerRef });
 
       // 이미 watchPosition이 실행 중인 경우 중복 호출 방지
@@ -156,12 +160,23 @@ export const useKakaoMap = ({
         handleMapMoveAndStateUpdate();
         startWatchingPosition(); // 위치 추적 재개
       }
-    }
+    };
 
-    // 일시 중지 시 위치 추적 중단
-    if (walkStatus === 'pause' && watchID.current !== null) {
+    // 산책 일시 중지 처리 (위치 추적 중단)
+    const handleWalkPause = () => {
+      if (!(walkStatus === 'pause' && watchID.current !== null)) return;
+
       stopWatchingPosition();
-    }
+    };
+
+    handleWalkStart();
+    handleWalkPause();
+
+    return () => {
+      if (watchID.current !== null) {
+        stopWatchingPosition();
+      }
+    };
   }, [
     isStarted,
     walkStatus,
@@ -170,54 +185,8 @@ export const useKakaoMap = ({
     handleMapMoveAndStateUpdate,
     startWatchingPosition,
     stopWatchingPosition,
+    watchID,
   ]);
-
-  // 첫 지도 셋팅
-  // useEffect(() => {
-  //   return () => {
-  //     // 필수적인 cleanup만 남기기
-  //     if (map) {
-  //       // 이벤트 리스너 제거
-  //       kakao.maps.event.removeListener(map, 'center_changed', () =>
-  //         centerChangedEventListener(map, setChangedPosition)
-  //       );
-
-  //       // 마커 제거
-  //       if (markerRef.current) {
-  //         markerRef.current.setMap(null);
-  //         markerRef.current = null;
-  //       }
-
-  //       // 오버레이 제거
-  //       if (overlayRef.current) {
-  //         overlayRef.current.setMap(null);
-  //         overlayRef.current = null;
-  //       }
-
-  //       // 지도 컨테이너 초기화
-  //       if (mapRef.current) {
-  //         mapRef.current.innerHTML = '';
-  //       }
-  //       // 위치 추적 중지
-  //       if (watchID.current !== null) {
-  //         navigator.geolocation.clearWatch(watchID.current);
-  //         watchID.current = null;
-  //       }
-
-  //       // polyline 제거
-  //       if (linePathRef.current.length > 0) {
-  //         linePathRef.current = [];
-  //       }
-  //       // 상태 초기화
-  //       setPositions({ previous: null, current: DEFAULT_MAP_POSITION });
-  //       setChangedPosition(null);
-
-  //       // 지도 인스턴스 제거
-  //       map.relayout();
-  //       setMap(null);
-  //     }
-  //   };
-  // }, [mapRef, map]);
 
   return { map, mapRef, linePathRef, changedPosition };
 };
