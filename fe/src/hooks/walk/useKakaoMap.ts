@@ -84,36 +84,35 @@ export const useKakaoMap = ({
     setOverlay({ isStarted, selectedBuddys, overlayRef, markerRef, map, customContents, closeButton });
   }, [isStarted, map, selectedBuddys, buddyList]);
 
-  // 산책 종료 후 경로 그리고 이미지 저장
+  // 산책 종료 후 경로 그린 이미지 저장
   useEffect(() => {
-    const donelogic = async () => {
-      const linePath = linePathRef.current;
-      console.log('linePath: ', linePath);
-      if (!(canvasRef?.current instanceof HTMLCanvasElement)) return;
+    if (!(walkStatus === 'stop' && mapRef.current && canvasRef.current && changedPosition)) return;
 
-      const snapShot = new RouteSnapshot({
-        canvasRef: { current: canvasRef.current },
-        routes: fromKakaoLatLng(linePathRef.current),
-      });
+    const captureRouteImage = async () => {
+      try {
+        if (!(canvasRef?.current instanceof HTMLCanvasElement)) return;
 
-      const imageURL = snapShot.generate();
+        const snapShot = new RouteSnapshot({
+          canvasRef: { current: canvasRef.current },
+          routes: fromKakaoLatLng(linePathRef.current),
+        });
 
-      if (!imageURL) return;
+        const imageURL = snapShot.generate();
+        if (!imageURL) return;
 
-      await delay(1500);
-      setIsStarted('done');
+        await delay(1500);
+        setIsStarted('done');
+      } catch (error) {
+        console.error('Error capturing route image:', error);
+      }
     };
 
-    // 산책 종료 후 경로 그리고 이미지 저장
-    if (walkStatus === 'stop' && mapRef.current && canvasRef.current && changedPosition) {
-      donelogic();
-    }
-  }, [canvasRef, changedPosition, linePathRef, mapRef, walkStatus]);
+    captureRouteImage();
+  }, [canvasRef, changedPosition, linePathRef, mapRef, walkStatus, setIsStarted]);
 
   // 종료 버튼
   useEffect(() => {
     if (!(walkStatus === 'stop' && map && linePathRef.current && overlayRef.current)) return;
-    // console.log('👽 1. 종료 버튼 누름');
 
     // 오버레이 제거
     if (overlayRef.current) {
