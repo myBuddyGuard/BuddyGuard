@@ -41,7 +41,7 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
     canvasRef,
   });
 
-  const handleTargetIcon = () => setIsTargetClicked((prev) => !prev);
+  const handleTargetClick = () => setIsTargetClicked((prev) => !prev);
 
   const handleStartIcon = () => {
     if (!buddyList.length) {
@@ -59,7 +59,7 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
 
   return (
     <StyledWalkWrapper>
-      <WalkMap {...{ mapRef, isStarted, handleTargetIcon, handleStartIcon }} />
+      <WalkMap {...{ mapRef, isStarted, handleTargetClick, handleStartIcon }} />
       <canvas ref={canvasRef} style={{ display: 'none' }} /> {/* 캔버스는 숨김 */}
       {isStarted === 'ready' && <WalkBuddySelectBar {...{ buddyList, selectedBuddys, selectBuddy }} />}
       {isStarted === 'start' && <WalkSatusBar {...{ walkStatus, setWalkStatus, timeRef }} />}

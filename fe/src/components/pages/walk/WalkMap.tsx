@@ -1,4 +1,3 @@
-import { RefObject } from 'react';
 import styled from 'styled-components';
 
 import PlayIcon from '@/components/icons/PlayIcon';
@@ -10,7 +9,7 @@ import targetIcon from '@public/assets/icons/targetIcon.png';
 import { IsStartedType } from './GoWalk';
 
 interface WalkMapProps {
-  mapRef: RefObject<HTMLDivElement>;
+  mapRef: React.MutableRefObject<HTMLDivElement | null>;
   isStarted: IsStartedType;
   handleTargetClick: () => void;
   handleStartIcon: () => void;

@@ -1,26 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RouteSnapshot, fromKakaoLatLng } from 'route-snap';
 
 import { IsStartedType } from '@/components/pages/walk/GoWalk';
 import { DEFAULT_MAP_LEVEL, DEFAULT_MAP_POSITION } from '@/constants/map';
 import {
   adjustMapBounds,
-  centerChangedEventListener,
-  createMap,
-  createMarker,
   createOverLayElement,
-  createPolyline,
-  drawPolylineOnMap,
-  getcurrentPosition,
   getMapPosition,
-  isPositionsDifferent,
-  loadKakaoMapScript,
   moveMapTo,
+  replaceCustomOverLay,
   setOverlay,
 } from '@/helper/kakaoMapHelpers';
-import { BuddysType, PositionPair, PositionType, SelectedBuddysType, StatusOfTime } from '@/types/map';
-import { calculateDistanceKM } from '@/utils/mapUtils';
+import { BuddysType, PositionPair, SelectedBuddysType, StatusOfTime } from '@/types/map';
 import { delay } from '@/utils/utils';
+
+import { useKakaoMapControls } from './useKakaoMapControls';
+import { useKakaoMapDrawing } from './useKakaoMapDrawing';
+import { useKakaoMapInit } from './useKakaoMapInit';
+import { useKakaoMapTracking } from './useKakaoMapTracking';
 
 export interface UseKakaoMapProps {
   threshold: number | undefined;
@@ -44,6 +41,7 @@ export interface SetOverlayProps {
   closeButton: HTMLImageElement;
 }
 
+// 지도 초기화, 위치 추적, 경로 그리기
 export const useKakaoMap = ({
   threshold,
   buddyList,
@@ -55,140 +53,36 @@ export const useKakaoMap = ({
   walkStatus,
   canvasRef,
 }: UseKakaoMapProps) => {
-  const [isMapScriptLoaded, setIsMapScriptLoaded] = useState(false);
-  const [isPositionReady, setIsPositionReady] = useState(false);
-
-  const mapRef = useRef<HTMLDivElement | null>(null);
-  const linePathRef = useRef<kakao.maps.LatLng[]>([]);
-  const [map, setMap] = useState<kakao.maps.Map | null>(null);
-  const [changedPosition, setChangedPosition] = useState<PositionType | null>(null);
-
-  const watchID = useRef<number | null>(null); // watchPosition ID
-
-  const markerRef = useRef<kakao.maps.Marker | null>(null);
-  const overlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
-
   const [positions, setPositions] = useState<PositionPair>({
     previous: null, // 초기에는 이전 위치가 없으므로 null
     current: DEFAULT_MAP_POSITION, // 기본 위치를 현재 위치로 설정
   });
 
-  /** 마커의 새로운 위치로 오버레이 이동 */
-  const replaceCustomOverLay = ({ overlayRef, markerRef }: Pick<SetOverlayProps, 'overlayRef' | 'markerRef'>) => {
-    if (!(overlayRef.current && markerRef.current)) return;
-    overlayRef.current.setPosition(markerRef.current.getPosition());
-  };
+  // 초기화 관련 로직
+  const { map, mapRef, markerRef, changedPosition, setChangedPosition } = useKakaoMapInit({ positions, setPositions });
 
-  /** 위치를 받아와 업데이트하는 함수 */
-  const handlePositionUpdate = useCallback(
-    (position: GeolocationPosition) => {
-      try {
-        const updatedPosition: PositionType = [position.coords.latitude, position.coords.longitude];
-        const newLatLng = new kakao.maps.LatLng(updatedPosition[0], updatedPosition[1]);
+  // 사용자 위치 추적 로직
+  const { watchID, startWatchingPosition, stopWatchingPosition, linePathRef, overlayRef } = useKakaoMapTracking({
+    threshold,
+    positions,
+    setPositions,
+    markerRef,
+  });
 
-        // 첫 위치인 경우 무조건 추가
-        if (linePathRef.current.length === 0) {
-          linePathRef.current.push(newLatLng);
-        }
+  // 경로 그리기 로직
+  const { handleDrawPolyline } = useKakaoMapDrawing({ map, linePathRef, positions });
 
-        // 이전 위치와 거리 계산
-        const prevPosition = positions.current;
-
-        //TEST: 1. 임계값 없는 경우 (undefined or 0)
-        if (!threshold) {
-          // linePath에 좌표 추가
-          linePathRef.current.push(newLatLng);
-
-          // 마커와 오버레이 위치 업데이트
-          markerRef.current?.setPosition(newLatLng);
-          overlayRef.current?.setPosition(newLatLng);
-
-          // 상태 업데이트
-          setPositions((prev) => ({
-            previous: prev.current,
-            current: updatedPosition,
-          }));
-          return;
-        }
-
-        // 임계값이 있는 경우 거리 계산
-        const distance = prevPosition
-          ? calculateDistanceKM(prevPosition[0], prevPosition[1], updatedPosition[0], updatedPosition[1]) * 1000
-          : null;
-
-        // 위치 변화가 거리 임계 값 이상일 경우에만 업데이트
-        if (distance && distance >= threshold) {
-          // linePath에 좌표 추가
-          linePathRef.current.push(newLatLng);
-
-          // 마커와 오버레이 위치 업데이트
-          markerRef.current?.setPosition(newLatLng);
-          overlayRef.current?.setPosition(newLatLng);
-
-          // 상태 업데이트
-          setPositions((prev) => ({
-            previous: prev.current,
-            current: updatedPosition,
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching position:', error);
-      }
-    },
-    [positions, linePathRef, markerRef, overlayRef, threshold]
-  );
-
-  /** Geolocation API로 위치 감지 시작 */
-  const startWatchingPosition = useCallback(() => {
-    // console.log('🙂 start WatchingPosition');
-    if (navigator.geolocation) {
-      watchID.current = navigator.geolocation.watchPosition(
-        (position) => handlePositionUpdate(position),
-        (error) => {
-          console.error('Error fetching position', error);
-        },
-        {
-          enableHighAccuracy: true, // 고정밀도 사용
-          timeout: 10000, // 10초 내에 위치 정보 못 가져오면 실패 처리
-          maximumAge: 0, // 캐시된 위치 정보 사용 안함
-        }
-      );
-    } else {
-      console.error('Geolocation API not supported by this browser.');
-    }
-  }, [handlePositionUpdate]);
-
-  /** Geolocation API로 위치 감지 중단 */
-  const stopWatchingPosition = useCallback(() => {
-    // console.log(`❕stop WatchingPosition()`);
-    if (watchID.current !== null) {
-      // console.log(`❕❕stop WatchingPosition() : ${watchID} clear!`);
-      navigator.geolocation.clearWatch(watchID.current);
-      watchID.current = null;
-    }
-  }, []);
-
-  /** 선을 지도에 그리는 함수 */
-  const handleDrawPolyline = useCallback(() => {
-    if (map && linePathRef.current.length > 1) {
-      const polyline = createPolyline(linePathRef.current);
-      drawPolylineOnMap(map, polyline);
-    }
-  }, [map, linePathRef]);
-
-  // 지도에 경로 그리기
-  useEffect(() => {
-    handleDrawPolyline();
-  }, [positions, handleDrawPolyline]);
-
-  /** 현재위치로 이동 및 위치 상태 업데이트 */
-  const handleMapMoveAndStateUpdate = useCallback(() => {
-    const moveLatLon = getMapPosition(positions);
-    setIsTargetClicked(false);
-    setChangedPosition([positions.current[0], positions.current[1]]);
-    if (!map) return;
-    moveMapTo(map, moveLatLon, DEFAULT_MAP_LEVEL);
-  }, [map, setIsTargetClicked, positions, setChangedPosition]);
+  // 지도의 조작 및 제어 관련
+  const { handleMapMoveAndStateUpdate, adjustMapBoundsToPath, handleTargetButtonClick } = useKakaoMapControls({
+    map,
+    positions,
+    linePathRef,
+    isTargetClicked,
+    setIsTargetClicked,
+    changedPosition,
+    setChangedPosition,
+    walkStatus,
+  });
 
   // 오버레이 설정
   useEffect(() => {
@@ -294,77 +188,6 @@ export const useKakaoMap = ({
       moveMapTo(map, moveLatLon, DEFAULT_MAP_LEVEL);
     }
   }, [positions, map]);
-
-  // 타겟버튼 클릭 시 지도 재조정
-  useEffect(() => {
-    if (isTargetClicked && walkStatus === 'stop' && map) {
-      adjustMapBounds(map, linePathRef.current);
-      setIsTargetClicked(false);
-      return;
-    }
-    if (isTargetClicked && isPositionsDifferent(positions, changedPosition) && map && walkStatus !== 'stop')
-      handleMapMoveAndStateUpdate();
-  }, [isTargetClicked, positions, changedPosition, map, walkStatus, handleMapMoveAndStateUpdate, setIsTargetClicked]);
-
-  // ✅ 1. 맵 스크립트 로드
-  useEffect(() => {
-    const loadScript = async () => {
-      await loadKakaoMapScript();
-      setIsMapScriptLoaded(() => true);
-    };
-
-    loadScript();
-  }, []);
-
-  // ✅ 2. 위치 가져오기 (맵 스크립트 로드 완료 후)
-  useEffect(() => {
-    // TODO: 위치 권한 상태 확인하고 없을 경우 예외 처리하기
-    // const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-    if (!isMapScriptLoaded) return;
-
-    const fetchLocation = async () => {
-      const currentPosition = await getcurrentPosition();
-
-      if (currentPosition.result === false) {
-        console.error('Error fetching position:', currentPosition.message);
-        return;
-      }
-      setPositions((prev) => ({ ...prev, current: currentPosition.position }));
-      setIsPositionReady(() => true);
-    };
-
-    fetchLocation();
-  }, [isMapScriptLoaded]);
-
-  // ✅ 3. 지도,마커 초기화 (위치 가져오기 완료 후)
-  useEffect(() => {
-    if (!(isPositionReady && window.kakao && mapRef.current)) return;
-
-    window.kakao.maps.load(() => {
-      const mapInstance = createMap(positions.current, mapRef, setChangedPosition);
-      const newMarker = createMarker(positions.current, mapInstance);
-      setMap(mapInstance);
-      markerRef.current = newMarker;
-    });
-
-    return () => {
-      if (markerRef.current) {
-        markerRef.current.setMap(null);
-        markerRef.current = null;
-      }
-    };
-  }, [isPositionReady, positions]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (!map) return;
-      map.relayout();
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [map]);
 
   // 첫 지도 셋팅
   // useEffect(() => {
