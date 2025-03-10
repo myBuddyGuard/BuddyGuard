@@ -11,14 +11,21 @@ export const useWalkBuddys = () => {
     const petsStorage = localStorage.getItem('petsStorage');
     if (!petsStorage) return;
 
-    const buddysList = JSON.parse(petsStorage)?.state?.petsInfo?.map(({ petId, petName, profileImage }: PetInfo) => ({
+    const buddyStorage = JSON.parse(petsStorage)?.state;
+    if (!buddyStorage) return;
+
+    const buddysList = buddyStorage.petsInfo?.map(({ petId, petName, profileImage }: PetInfo) => ({
       id: petId,
       img: profileImage,
       name: petName,
     }));
 
+    const titleBuddyId = buddyStorage.selectedBuddy?.petId;
     if (buddysList) {
       setBuddyList(buddysList);
+    }
+    if (titleBuddyId) {
+      setSelectedBuddys([titleBuddyId]);
     }
   }, []);
 
