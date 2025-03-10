@@ -34,33 +34,29 @@ const sampleBuddys: BuddysType[] = [
 
 export const Default = Template.bind({});
 Default.args = {
-  buddys: sampleBuddys,
+  buddyList: sampleBuddys,
   selectedBuddys: [],
-  handleOnChange: () => {},
 };
 
 export const SelectBuddy = Template.bind({});
 SelectBuddy.args = {
-  buddys: sampleBuddys,
+  buddyList: sampleBuddys,
   selectedBuddys: [1, 2],
-  handleOnChange: () => {},
 };
 
 export const ManyBuddys = Template.bind({});
 ManyBuddys.args = {
-  buddys: [
+  buddyList: [
     ...sampleBuddys,
     { id: 4, img: image1, name: 'Buddy 4' },
     { id: 5, img: image2, name: 'Buddy 5' },
     { id: 6, img: image3, name: 'Buddy 6' },
   ],
   selectedBuddys: [],
-  handleOnChange: () => {},
 };
 
 export const LongNameBuddy = Template.bind({});
 LongNameBuddy.args = {
-  buddys: [{ id: 1, img: image1, name: 'Buddy with a very very long name that overflows' }],
+  buddyList: [{ id: 1, img: image1, name: 'Buddy with a very very long name that overflows' }],
   selectedBuddys: [],
-  handleOnChange: () => {},
 };
