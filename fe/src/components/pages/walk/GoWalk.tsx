@@ -17,6 +17,7 @@ export type IsStartedType = 'ready' | 'start' | 'done';
 
 export default function GoWalk({ threshold }: { threshold: number | undefined }) {
   const navigate = useNavigate();
+  const [isMapLoadError, setIsMapLoadError] = useState(false);
   const [isTargetClicked, setIsTargetClicked] = useState(false);
 
   // 1. 시간 관련
@@ -33,8 +34,9 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
     threshold,
     buddyList,
     selectedBuddys,
+    setIsMapLoadError,
     isTargetClicked,
-    setIsTargetClicked, //TODO
+    setIsTargetClicked,
     isStarted,
     setIsStarted,
     walkStatus,
@@ -44,6 +46,11 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
   const handleTargetClick = () => setIsTargetClicked((prev) => !prev);
 
   const handleStartIcon = () => {
+    if (isMapLoadError) {
+      message.error('현재 위치를 불러올 수 없습니다. 위치 권한 설정을 확인해주세요.');
+      return;
+    }
+
     if (!buddyList.length) {
       message.info('버디를 등록해주세요!');
       navigate('/MyPage/AddBuddy');

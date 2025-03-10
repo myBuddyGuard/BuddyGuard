@@ -6,8 +6,9 @@ import { PositionPair, PositionType } from '@/types/map';
 interface useKakaoMapInitProps {
   positions: PositionPair;
   setPositions: React.Dispatch<React.SetStateAction<PositionPair>>;
+  setIsMapLoadError: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export const useKakaoMapInit = ({ positions, setPositions }: useKakaoMapInitProps) => {
+export const useKakaoMapInit = ({ positions, setPositions, setIsMapLoadError }: useKakaoMapInitProps) => {
   const [changedPosition, setChangedPosition] = useState<PositionType | null>(null);
   const [isMapScriptLoaded, setIsMapScriptLoaded] = useState(false);
   const [isPositionReady, setIsPositionReady] = useState(false);
@@ -36,14 +37,15 @@ export const useKakaoMapInit = ({ positions, setPositions }: useKakaoMapInitProp
 
       if (currentPosition.result === false) {
         console.error('Error fetching position:', currentPosition.message);
-        return;
+        setIsMapLoadError(() => true);
       }
+
       setPositions((prev) => ({ ...prev, current: currentPosition.position }));
       setIsPositionReady(() => true);
     };
 
     fetchLocation();
-  }, [isMapScriptLoaded, setPositions]);
+  }, [isMapScriptLoaded, setPositions, setIsMapLoadError]);
 
   // ✅ 3. 지도,마커 초기화 (위치 가져오기 완료 후)
   useEffect(() => {

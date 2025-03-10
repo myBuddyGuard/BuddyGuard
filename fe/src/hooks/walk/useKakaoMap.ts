@@ -16,6 +16,7 @@ export interface UseKakaoMapProps {
   threshold: number | undefined;
   buddyList: BuddysType[];
   selectedBuddys: SelectedBuddysType;
+  setIsMapLoadError: React.Dispatch<React.SetStateAction<boolean>>;
   isTargetClicked: boolean;
   setIsTargetClicked: React.Dispatch<React.SetStateAction<boolean>>;
   isStarted: IsStartedType;
@@ -39,6 +40,7 @@ export const useKakaoMap = ({
   threshold,
   buddyList,
   selectedBuddys,
+  setIsMapLoadError,
   isTargetClicked,
   setIsTargetClicked,
   isStarted,
@@ -52,7 +54,11 @@ export const useKakaoMap = ({
   });
 
   // 초기화 관련 로직
-  const { map, mapRef, markerRef, changedPosition, setChangedPosition } = useKakaoMapInit({ positions, setPositions });
+  const { map, mapRef, markerRef, changedPosition, setChangedPosition } = useKakaoMapInit({
+    positions,
+    setPositions,
+    setIsMapLoadError,
+  });
 
   // 사용자 위치 추적 로직
   const { watchID, startWatchingPosition, stopWatchingPosition, linePathRef, overlayRef } = useKakaoMapTracking({
