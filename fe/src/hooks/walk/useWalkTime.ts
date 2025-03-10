@@ -1,16 +1,11 @@
 import { useRef, useState } from 'react';
 
+import { createInitTimeRef } from '@/constants/map';
 import { StatusOfTime, TimeRef } from '@/types/map';
 import { getCurrentDate } from '@/utils/timeUtils';
 
 export const useWalkTime = () => {
-  const initTimeRef: TimeRef = {
-    start: { day: new Date(), time: '' },
-    end: { day: new Date(), time: '' },
-    total: '',
-  };
-
-  const timeRef = useRef<TimeRef>(initTimeRef);
+  const timeRef = useRef<TimeRef>(createInitTimeRef());
 
   const [walkStatus, setWalkStatus] = useState<StatusOfTime>('start');
 
