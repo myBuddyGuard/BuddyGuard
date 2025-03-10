@@ -1,5 +1,5 @@
 import apiClient from '@/apis/axiosInstance';
-import { MutationDeleteParams, MutationParams, UseWalkQueryProps } from '@/hooks/useWalkQuery';
+import { MutationDeleteParams, MutationParams, UseWalkQueryProps } from '@/hooks/walk/useWalkQuery';
 
 const WALK_BASE_URL = '/api/walkRecords';
 

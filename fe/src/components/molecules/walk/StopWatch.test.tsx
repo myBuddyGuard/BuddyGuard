@@ -1,9 +1,9 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { vi } from 'vitest';
 
-import { initTimeRef } from '@/components/pages/walk/GoWalk';
+import { createInitTimeRef } from '@/constants/map';
 import { getTimeFormatString } from '@/helper/timerHelpers';
-import useStopWatch from '@/hooks/useStopWatch';
+import useStopWatch from '@/hooks/walk/useStopWatch';
 import { StatusOfTime, TimeRef } from '@/types/map';
 
 // 함수 모킹 (테스트 중에 이 함수의 실제 구현에 의존하지 않고 테스트 하기위함)
@@ -17,7 +17,7 @@ describe('useStopWatch Hook', () => {
 
   // 각 테스트 전에 실행
   beforeEach(() => {
-    timeRef = { current: initTimeRef };
+    timeRef = { current: createInitTimeRef() };
     // 가상 타이머를 사용하여 타이머를 제어
     vi.useFakeTimers();
   });
