@@ -3,8 +3,8 @@ import { message } from 'antd';
 import { defaultShadow } from '@/components/atoms/Button';
 import { DEFAULT_MAP_POSITION } from '@/constants/map';
 import { KAKAOMAP_API_SRC } from '@/constants/urlConstants';
-import { SetOverlayProps } from '@/hooks/useKakaoMap';
-import { BuddysType, PositionPair, PositionType, SelectedBuddysType } from '@/types/map';
+import { SetOverlayProps } from '@/hooks/walk/useKakaoMap';
+import { BuddysType, getcurrentLocationResultType, PositionPair, PositionType, SelectedBuddysType } from '@/types/map';
 import closeIcon from '@public/assets/icons/closeIcon.png';
 import mascot from '@public/assets/images/mascot.png';
 import mapMarkerImage from '@public/images/mapMarker.png';
@@ -238,15 +238,25 @@ export const loadKakaoMapScript = (): Promise<void> => {
   });
 };
 
-/** 현재 위치 가져오기 */
-export const getcurrentLocation = (): Promise<PositionType> => {
-  return new Promise((resolve) => {
-    if (!('geolocation' in navigator)) {
-      console.error('🌍 Geolocation not supported');
-      resolve(DEFAULT_MAP_POSITION);
-      return;
-    }
+/** 위치 권한 상태 확인 */
+const checkGeolocationPermission = async (): Promise<boolean> => {
+  const permissionResult = await navigator.permissions.query({ name: 'geolocation' });
+  if (permissionResult.state === 'granted') return true;
+  return false;
+};
 
+/** 현재 위치 가져오기 */
+export const getcurrentPosition = async (): Promise<getcurrentLocationResultType> => {
+  if (!('geolocation' in navigator)) {
+    return { result: false, message: '🌍 Geolocation not supported', position: DEFAULT_MAP_POSITION };
+  }
+
+  const hasPermission = await checkGeolocationPermission();
+  if (!hasPermission) {
+    return { result: false, message: '🌍 permission was denied.', position: DEFAULT_MAP_POSITION };
+  }
+
+  return new Promise((resolve) => {
     // 재시도 로직 추가
     let retryCount = 0;
     const maxRetries = 3;
@@ -260,14 +270,16 @@ export const getcurrentLocation = (): Promise<PositionType> => {
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log('🌍 위치 정보 받기 성공');
-          resolve([position.coords.latitude, position.coords.longitude]);
+          resolve({
+            result: true,
+            message: '🌍 위치 정보 받기 성공',
+            position: [position.coords.latitude, position.coords.longitude],
+          });
         },
         (error) => {
           const errorMsg = `🌍 위치 정보 시도 ${retryCount + 1}/${maxRetries} 실패: ${error.message}, errorCode:${error.code}`;
-          console.error(errorMsg);
           message.error(errorMsg);
-
+          console.error(errorMsg);
           if (retryCount < maxRetries - 1) {
             retryCount++;
             const retryMsg = `🌍 재시도 중... (${retryCount}/${maxRetries})`;
@@ -278,7 +290,11 @@ export const getcurrentLocation = (): Promise<PositionType> => {
             const errorMsg2 = '🌍 최대 재시도 횟수 초과, 기본 위치 사용';
             console.error(errorMsg2);
             message.error(errorMsg2);
-            resolve(DEFAULT_MAP_POSITION);
+            resolve({
+              result: false,
+              message: errorMsg2,
+              position: DEFAULT_MAP_POSITION,
+            });
           }
         },
         options

@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 
 import { initTimeRef } from '@/components/pages/walk/GoWalk';
 import { getTimeFormatString } from '@/helper/timerHelpers';
-import useStopWatch from '@/hooks/useStopWatch';
+import useStopWatch from '@/hooks/walk/useStopWatch';
 import { StatusOfTime, TimeRef } from '@/types/map';
 
 // 함수 모킹 (테스트 중에 이 함수의 실제 구현에 의존하지 않고 테스트 하기위함)

@@ -4,7 +4,7 @@ import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styled from 'styled-components';
 
-import { useWalkQuery } from '@/hooks/useWalkQuery';
+import { useWalkQuery } from '@/hooks/walk/useWalkQuery';
 // import { testData } from '@/mocks/walkTest';
 import { useFilterStore } from '@/stores/useFilterStore';
 import { usePetStore } from '@/stores/usePetStore';
