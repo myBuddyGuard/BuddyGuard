@@ -238,22 +238,10 @@ export const loadKakaoMapScript = (): Promise<void> => {
   });
 };
 
-/** 위치 권한 상태 확인 */
-const checkGeolocationPermission = async (): Promise<boolean> => {
-  const permissionResult = await navigator.permissions.query({ name: 'geolocation' });
-  if (permissionResult.state === 'granted') return true;
-  return false;
-};
-
 /** 현재 위치 가져오기 */
 export const getcurrentPosition = async (): Promise<getcurrentLocationResultType> => {
   if (!('geolocation' in navigator)) {
     return { result: false, message: '🌍 Geolocation not supported', position: DEFAULT_MAP_POSITION };
-  }
-
-  const hasPermission = await checkGeolocationPermission();
-  if (!hasPermission) {
-    return { result: false, message: '🌍 permission was denied.', position: DEFAULT_MAP_POSITION };
   }
 
   return new Promise((resolve) => {
