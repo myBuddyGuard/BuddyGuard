@@ -240,9 +240,19 @@ export const loadKakaoMapScript = (): Promise<void> => {
 
 /** 위치 권한 상태 확인 */
 const checkGeolocationPermission = async (): Promise<boolean> => {
-  const permissionResult = await navigator.permissions.query({ name: 'geolocation' });
-  if (permissionResult.state === 'granted') return true;
-  return false;
+  if (!('permissions' in navigator)) {
+    console.log('Permissions API is not supported in this browser');
+    return true; // API가 없으면 직접 요청하도록 true 반환
+  }
+
+  try {
+    const permissionResult = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
+    // "prompt" 상태도 허용하여 사용자에게 권한 요청 가능하도록
+    return permissionResult.state === 'granted' || permissionResult.state === 'prompt';
+  } catch (error) {
+    console.error('위치 권한 확인 중 오류 발생:', error);
+    return true; // 에러 발생 시 직접 요청해보도록 true 반환
+  }
 };
 
 /** 현재 위치 가져오기 */
