@@ -47,7 +47,7 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
 
   const handleStartIcon = () => {
     if (isMapLoadError) {
-      message.error('현재 위치를 불러올 수 없습니다. 위치 권한 설정을 확인해주세요.');
+      message.error('현재 위치를 불러올 수 없습니다. \n 네트워크 또는 위치 권한 설정을 확인해주세요.');
       return;
     }
 
