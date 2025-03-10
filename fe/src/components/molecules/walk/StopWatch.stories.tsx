@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useTheme } from 'styled-components';
 
 import StopWatch, { StopWatchProps } from '@/components/molecules/walk/StopWatch';
-import { initTimeRef } from '@/components/pages/walk/GoWalk';
+import { createInitTimeRef } from '@/constants/map';
 import { TimeRef } from '@/types/map';
 
 export default {
@@ -19,7 +19,7 @@ export default {
   },
 } as Meta;
 
-const defaultTimeRef: TimeRef = initTimeRef;
+const defaultTimeRef: TimeRef = createInitTimeRef();
 
 // 템플릿 생성
 const Template: StoryFn<StopWatchProps> = (args) => {

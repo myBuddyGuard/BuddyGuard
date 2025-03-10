@@ -1,11 +1,11 @@
-import image1 from '@public/images/profile01.png';
-import image2 from '@public/images/profile02.png';
-import image3 from '@public/images/profile03.png';
 import { Meta, StoryFn } from '@storybook/react';
 
 import WalkBuddySelectBar, { WalkBuddySelectBarProps } from '@/components/molecules/walk/WalkBuddySelectBar';
 import { StyledMobileFrame } from '@/components/templates/ResponsiveLayout';
 import { BuddysType } from '@/types/map';
+import image1 from '@public/images/profile01.png';
+import image2 from '@public/images/profile02.png';
+import image3 from '@public/images/profile03.png';
 
 export default {
   title: 'Molecules/WalkBuddySelectBar',
