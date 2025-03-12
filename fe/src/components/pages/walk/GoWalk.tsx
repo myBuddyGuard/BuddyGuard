@@ -8,6 +8,7 @@ import WalkSatusBar from '@/components/molecules/walk/WalkSatusBar';
 import WalkModal from '@/components/organisms/walk/WalkModal';
 import { useKakaoMap } from '@/hooks/walk/useKakaoMap';
 import { useNetworkStatus } from '@/hooks/walk/useNetworkStatus';
+import { useTemporaryData } from '@/hooks/walk/useTemporaryData';
 import { useWalkBuddys } from '@/hooks/walk/useWalkBuddys';
 import { useWalkTime } from '@/hooks/walk/useWalkTime';
 import { fillAvailable } from '@/styles/layoutStyles';
@@ -20,11 +21,12 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
   const navigate = useNavigate();
   const [isMapLoadError, setIsMapLoadError] = useState(false);
   const [isTargetClicked, setIsTargetClicked] = useState(false);
-  const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
 
   // 네트워크 상태 관련
-  const { isOnline, hasOfflineData, savePathData, recoverOfflinePathData, loadOfflinePathData, discardOfflineData } =
-    useNetworkStatus();
+  const { isOnline } = useNetworkStatus();
+  // 임시 데이터 관련
+  const { hasOfflineData, savePathData, recoverOfflinePathData, loadOfflinePathData, discardOfflineData } =
+    useTemporaryData(isOnline);
 
   // 1. 시간 관련
   const { timeRef, walkStatus, setWalkStatus, startTime } = useWalkTime();
