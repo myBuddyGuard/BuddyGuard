@@ -8,3 +8,5 @@ export const createInitTimeRef = (): TimeRef => ({
   end: { day: new Date(), time: '' },
   total: '',
 });
+
+export const OFFLINE_PATH_STORAGE_KEY = 'walkingPath';
