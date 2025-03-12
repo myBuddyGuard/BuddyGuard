@@ -7,6 +7,7 @@ import WalkBuddySelectBar from '@/components/molecules/walk/WalkBuddySelectBar';
 import WalkSatusBar from '@/components/molecules/walk/WalkSatusBar';
 import WalkModal from '@/components/organisms/walk/WalkModal';
 import { useKakaoMap } from '@/hooks/walk/useKakaoMap';
+import { useNetworkStatus } from '@/hooks/walk/useNetworkStatus';
 import { useWalkBuddys } from '@/hooks/walk/useWalkBuddys';
 import { useWalkTime } from '@/hooks/walk/useWalkTime';
 import { fillAvailable } from '@/styles/layoutStyles';
@@ -19,6 +20,11 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
   const navigate = useNavigate();
   const [isMapLoadError, setIsMapLoadError] = useState(false);
   const [isTargetClicked, setIsTargetClicked] = useState(false);
+  const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
+
+  // 네트워크 상태 관련
+  const { isOnline, hasOfflineData, savePathData, recoverOfflinePathData, loadOfflinePathData, discardOfflineData } =
+    useNetworkStatus();
 
   // 1. 시간 관련
   const { timeRef, walkStatus, setWalkStatus, startTime } = useWalkTime();
@@ -46,6 +52,11 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
   const handleTargetClick = () => setIsTargetClicked((prev) => !prev);
 
   const handleStartIcon = () => {
+    if (!isOnline) {
+      message.error('네트워크 연결을 확인해주세요.');
+      return;
+    }
+
     if (isMapLoadError) {
       message.error('현재 위치를 불러올 수 없습니다. \n 네트워크 또는 위치 권한 설정을 확인해주세요.');
       return;
@@ -56,10 +67,12 @@ export default function GoWalk({ threshold }: { threshold: number | undefined })
       navigate('/MyPage/AddBuddy');
       return;
     }
+
     if (!selectedBuddys.length) {
       message.warning('산책할 버디를 선택해주세요!');
       return;
     }
+
     setIsStarted('start');
     startTime();
   };
