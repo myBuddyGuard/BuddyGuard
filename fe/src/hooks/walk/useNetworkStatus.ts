@@ -5,30 +5,19 @@ import { FormDataType } from '@/components/organisms/walk/WalkModal';
 import { OFFLINE_PATH_STORAGE_KEY } from '@/constants/map';
 
 // 저장할 데이터 타입 정의
-export interface OfflineWalkData {
-  path: FormDataType['path'];
-  time: {
-    start: { date: string; time: string };
-    end: { date: string; time: string };
-    totalTime: string;
-  };
-  selectedBuddyIds: FormDataType['buddysId'];
-  note?: FormDataType['note'];
-  savedAt: number; // 타임스탬프
-}
+export type OfflinePathData = Omit<FormDataType, 'note' | 'pathImage'>;
 
 export const useNetworkStatus = () => {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [hasOfflineData, setHasOfflineData] = useState<boolean>(false);
 
   /** 경로 데이터 저장 */
-  const savePathData = useCallback((data: OfflineWalkData) => {
+  const savePathData = useCallback((data: OfflinePathData) => {
     try {
       localStorage.setItem(
         OFFLINE_PATH_STORAGE_KEY,
         JSON.stringify({
           ...data,
-          savedAt: new Date().getTime(), // 저장 시간 기록
         })
       );
       setHasOfflineData(true);
@@ -101,5 +90,5 @@ export const useNetworkStatus = () => {
     };
   }, [checkOfflineData]);
 
-  return { isOnline, hasOfflineData, savePathData, recoverOfflinePathData, loadOfflinePathData };
+  return { isOnline, hasOfflineData, savePathData, recoverOfflinePathData, loadOfflinePathData, discardOfflineData };
 };
