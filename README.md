@@ -128,7 +128,16 @@ $ pnpm dev
 
 ### Backend
 
-[백엔드 스택 정보]
+- **Core** : <img src="https://img.shields.io/badge/Java-007396?style=&logo=OpenJDK&logoColor=white"> <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=&logo=Spring%20Boot&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data JPA-6DB33F?style=&logo=Spring&logoColor=white"> <img src="https://img.shields.io/badge/Spring Data Redis-6DB33F?style=&logo=Spring&logoColor=white">
+
+- **Database** : <img src="https://img.shields.io/badge/MySQL-4479A1?style=&logo=MySQL&logoColor=white"> <img src="https://img.shields.io/badge/Redis-DC382D?style=&logo=Redis&logoColor=white">
+
+- **Security** : <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=&logo=Spring%20Security&logoColor=white"> <img src="https://img.shields.io/badge/OAuth2-3C7EBB?style=&logo=OAuth&logoColor=white">
+
+- **Infrastructure** : <img src="https://img.shields.io/badge/AWS EC2-232F3E?style=&logo=amazonec2&logoColor=white"> <img src="https://img.shields.io/badge/Docker-2496ED?style=&logo=Docker&logoColor=white">
+
+- **Documentation** : <img src="https://img.shields.io/badge/Swagger-85EA2D?style=&logo=swagger&logoColor=black"> <img src="https://img.shields.io/badge/Springdoc-6DB33F?style=&logo=spring&logoColor=white">
+
 
 ## 🏗️ 아키텍처
 
